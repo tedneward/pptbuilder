@@ -1,0 +1,17 @@
+<presentation xmlns:xi="http://www.w3.org/2001/XInclude">
+    <head>
+        <title>Busy Speaker's Guide to PPTB Testing</title>
+        <abstract>
+            This is the abstract for a sample talk.
+
+            This is the second paragraph for an abstract.
+        </abstract>
+        <audience>For any intermediate Java (2 or more years) audience</audience>
+        <!-- keywords -->
+    </head>
+
+    <xi:include href="Content/credentials.xmlmd" />
+
+    <xi:include href="Content/section.xmlmd" />
+</presentation>
+

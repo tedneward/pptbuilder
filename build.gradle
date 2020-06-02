@@ -16,6 +16,7 @@ repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
+    maven { url "https://kotlin.bintray.com/kotlinx" }
 }
 
 dependencies {
@@ -24,14 +25,13 @@ dependencies {
 
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'com.vladsch.flexmark:flexmark-all:0.61.30'
-    compile group: 'org.apache.poi', name: 'poi', version: '4.0.1'
-    compile group: 'org.apache.poi', name: 'poi-ooxml', version: '4.0.1'
-    compile group: 'org.apache.poi', name: 'poi-scratchpad', version: '4.0.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-cli:0.2.1'
+    compile group: 'org.apache.poi', name: 'poi', version: '4.1.2'
+    compile group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.2'
+    compile group: 'org.apache.poi', name: 'poi-scratchpad', version: '4.1.2'
 
-    // Use the Kotlin test library.
+    // Use the Kotlin test library & JUnit
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
-
-    // Use the Kotlin JUnit integration.
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
 }
 

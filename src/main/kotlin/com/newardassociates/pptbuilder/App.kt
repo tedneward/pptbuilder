@@ -3,13 +3,39 @@
  */
 package com.newardassociates.pptbuilder
 
-class App {
-    val greeting: String
-        get() {
-            return "Hello world."
-        }
+import kotlinx.cli.*
+
+class App(val input : String, val output : String, val formats : List<String>, val debug : Boolean) {
+
 }
 
+enum class OutputFormat(val choice : String) {
+    HTML("html"),
+    PDF("pdf"),
+    PPTX("pptx")
+}
+
+
 fun main(args: Array<String>) {
-    println(App().greeting)
+    val parser = ArgParser("pptbuilder")
+
+    // These two as arguments?
+    val input by parser.option(ArgType.String, fullName = "input", shortName = "i",
+            description = "Input file").required()
+    val output by parser.option(ArgType.String, fullName = "output", shortName = "o",
+            description = "Output file name").default("")
+
+    val formatList  = listOf(
+            HTMLProcessor().choice,
+            PDFProcessor().choice,
+            PPTXProcessor().choice
+    )
+    val format by parser.option(ArgType.Choice(formatList), fullName = "format", shortName = "f",
+            description="Output format type").default("pptx").multiple()
+
+    val debug by parser.option(ArgType.Boolean, fullName = "debug", shortName = "d",
+            description="Turn on debug/verbose mode").default(false)
+
+    parser.parse(args)
+    val app = App(input, output, format, debug)
 }

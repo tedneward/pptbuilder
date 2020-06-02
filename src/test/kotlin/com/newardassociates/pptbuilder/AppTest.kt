@@ -12,31 +12,58 @@ import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import org.apache.poi.xslf.usermodel.XMLSlideShow
+import org.w3c.dom.NodeList
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import javax.xml.*
+import javax.xml.parsers.*
+import javax.xml.xpath.*
+import javax.xml.validation.*
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class AppTest {
-    @Test fun testAppHasAGreeting() {
-        val classUnderTest = App()
-        assertNotNull(classUnderTest.greeting, "app should have a greeting")
-    }
-
     @Test fun flexmarkMarkdownParse() {
         val options = MutableDataSet()
 
         //options.set(HtmlRenderer.SOFT_BREAK, "<br />\n");
         val parser: Parser = Parser.builder(options).build()
-        val renderer: HtmlRenderer = HtmlRenderer.builder(options).build()
-
-        // You can re-use parser and renderer instances
         val document: Node = parser.parse("This is *Sparta*")
+
+        /*
+        System.out.println(document)
+        for (child in document.children) {
+            println(child)
+            for (grandchild in child.children) {
+                println(grandchild)
+            }
+        }
+         */
+
+        val renderer: HtmlRenderer = HtmlRenderer.builder(options).build()
         val html: String = renderer.render(document) // "<p>This is <em>Sparta</em></p>\n"
         assertNotNull(html, "<p>This is <em>Sparta</em></p>\\n")
     }
 
     @Test fun xmlTest() {
+        // Important note about XInclude: "The namespace for XInclude
+        // was changed back to http://www.w3.org/2001/XInclude in the
+        // Candidate Recommendation (April 2004). The
+        // http://www.w3.org/2003/XInclude namespace is no longer
+        // recognized." --https://xerces.apache.org/xerces2-j/faq-xinclude.html
 
+        val factory = DocumentBuilderFactory.newInstance()
+        factory.isNamespaceAware = true
+        factory.isXIncludeAware = true
+        val builder = factory.newDocumentBuilder()
+        val doc = builder.parse(File("./src/test/resources/xmltest.xml"))
+
+        assertTrue(doc.documentElement.getElementsByTagName("included").length > 0)
+
+        // Try it with XPath
+        val xpath = XPathFactory.newInstance().newXPath()
+        val nodeList = xpath.compile("/presentation/body/included").evaluate(doc, XPathConstants.NODESET)
+        assertTrue((nodeList as NodeList).length > 0)
     }
 
     @Test fun apachePOITest() {
@@ -58,5 +85,7 @@ class AppTest {
         assertEquals("apachePOITest", r1.rawText)
 
         ppt.write(FileOutputStream(apachePOITestFile))
+                // for some reason, the slide isn't having text in it
+                // and I don't know why, but leave that for now
     }
 }

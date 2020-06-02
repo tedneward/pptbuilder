@@ -1,0 +1,5 @@
+<presentation xmlns:xi="http://www.w3.org/2001/XInclude">
+    <body>
+        <xi:include href="xmlinclude.xml" />
+    </body>
+</presentation>
