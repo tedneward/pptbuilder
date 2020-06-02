@@ -1,0 +1,10 @@
+<slideset>
+  <slide title="XIncluded slideset #1">
+    * This slide came from slideset external-2!
+    -- That's pretty fucking cool
+  </slide>
+  <slide title="XIncluded slideset #2">
+    * So did this one
+  </slide>
+</slideset>
+

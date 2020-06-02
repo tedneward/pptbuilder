@@ -1,0 +1,10 @@
+<root>
+  <child1>
+    <child2>
+      <child3>This is some text</child3>
+    </child2>
+  </child1>
+  <slide title="XInclude test #1" />
+  <slide title="XInclude test #2" />
+  <slide title="XInclude test #3" />
+</root>

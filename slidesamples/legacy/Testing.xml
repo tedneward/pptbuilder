@@ -1,0 +1,188 @@
+﻿<presentation xmlns:xi="http://www.w3.org/2003/XInclude">
+  <head>
+    <title>Busy Speaker's Guide to PPTB Testing</title>
+    <abstract>
+This is the abstract for a sample talk.
+
+This is the second paragraph for an abstract.
+    </abstract>
+    <audience>For any intermediate Java (2 or more years) audience</audience>
+  </head>
+
+  <!-- Test bullets -->
+  <slide title="Concepts">
+    * Activities
+    * Intents
+    * Services
+    * Content Providers
+  </slide>
+
+  <!-- Test up to three- four- and five-level nesting -->
+  <slide title="Tools">
+    * Android tooling consists of:
+    ** JDK 1.6.latest
+    ** Android SDK
+    *** Android SDK installer/updater
+    **** Android libraries &amp; documentation (versioned)
+    ***** Android emulator
+    ***** ADB
+    ** an Android device (optional, sort of)
+    ** IDE w/Android plugins (optional)
+    *** Eclipse is the oldest; I don’t particularly care for it
+    *** IDEA 10 rocks; Community Edition is free
+    *** Even NetBeans has an Android plugin
+  </slide>
+
+  <!-- Test bulletless indents -->
+  <slide title="Objectives">
+  	My job...
+    - ... is to test this tool
+    -- ... is to show you enough Android to make you dangerous
+    --- ... because I can't exhaustively cover the entire platform in just one conference session
+    ---- ... I will show you the (barebones) tools
+    ----- ... I will show you some basics
+  </slide>
+
+  <!-- Test section header -->
+  <section title="Getting Dirty" 
+  		   quote="In theory, there's no difference|between theory and practice.|In practice, however..." 
+  		   attribution="Yogi Berra" />
+
+  <!-- Test section header with quote but no attribution -->
+  <section title="Importing slides" 
+  	       quote="Testing XInclude and PPT ImportSlides" />
+
+  <!-- Test section header with no quote and no attribution -->
+  <!-- Should throw an exception; test this later -->
+  <!-- <section title="Getting Started" quote="Begin at the beginning" attribution="The White Rabbit" /> -->
+
+  <!-- Test slide import -->
+  <slide import="Testing/standalone-1.ppt" />
+  
+  <!-- Test XInclude support -->
+  <xi:include href="Testing/external-1.xml" parse="xml" />
+  <xi:include href="../Includes/credentials.xml" />
+  
+  <!-- Test XInclude support with slideset "grouping" node -->
+  <xi:include href="Testing/external-2.xml" parse="xml" />
+
+  <!-- Test XInclude support with slideset and an external slide inside there -->
+  <xi:include href="Testing/external-3.xml" parse="xml" />
+
+  <!-- Test XInclude support with xpointer -->
+  <slide title="XInclude test">
+  <xi:include href="Testing/external-4.xml" parse="xml"
+              xpointer="xpointer(/root/child1/child2/child3)" />
+  </slide>
+
+  <slide title="XInclude test">
+  <xi:include href="Testing/external-4.xml" parse="xml"
+              xpointer="xpointer(/root/child1/child2/child3)" />
+  </slide>
+  <xi:include href="Testing/external-4.xml" parse="xml"
+              xpointer="xpointer(//slide)" />
+
+  <section title="Text stuff" 
+  	       quote="Testing different font magic" />
+
+  <!-- Test _underline_ ^italic^ and ~bold~ -->
+  <slide title="Objectives">
+    My job...
+    - ... is to _test_ this tool
+    -- ... is to ^show^ you enough Android to make you dangerous
+    --- ... because I ~can't~ exhaustively cover the entire platform in just one conference session
+    ---- ... I will show you the (barebones) tools
+    ----- ... I will show you some basics
+  </slide>
+
+  <section title="Code stuff" 
+  	       quote="Testing how to put code on a slide" />
+
+  <!-- Test code sections -->
+  <slide title="Code slide 1">
+    <text>
+      - Here is some code inline:
+    </text>
+    <code language="java">
+public static void main(String[] args) {
+  // ...
+}
+    </code>
+  </slide>
+  <slide title="Code slide 2">
+    <text>
+      - Here is some code inline:
+    </text>
+    <code language="java">
+      public static void main(String[] args) {
+      // ...
+      }
+    </code>
+    <text>
+      - Here is some more code inline:
+    </text>
+    <code language="java">
+      public static void main(String[] args) {
+      // ...
+      }        
+    </code>
+    <text>
+      - Test one with language left off (defaults to "text"):
+    </text>
+    <code>
+      public static void main(String[] args) {
+      // ...
+      }
+    </code>
+  </slide>
+
+  <slide title="Code frag 3">
+    <text>
+      * Here is some code from an external file
+    </text>
+    <code language="java" src="Testing\App1.java" />
+    <!--
+    Expects a Testing\App1.java file that looks like the following;
+    everything will get pulled in:
+    public class App1
+    {
+      public static void main(String[] args) {
+      }
+    }
+    -->
+    <text>
+      Here is some code from an external file
+    </text>
+    <code language="java" src="Testing\App.java" marker="main" />
+    <!--
+    Expects a Testing\App.java file that looks like the following;
+    only the code between the {{##:main and ##}}:main will get pulled in:
+    public class App
+    {
+// {{##:main 
+      public static void main(String[] args) {
+      }
+// ##}}:main
+    }
+    -->
+  </slide>  
+
+  <slide title="Summary">
+    * Android is a Java-based mobile device framework
+    -- … but it’s not Java
+    -- … and it’s definitely not Swing or SWT
+    -- … but it does let you use the Java parts you love
+    -- … so long as they fit a (relatively) narrow profile
+  </slide>
+
+  <slide title="Resources">
+    * Busy Coder’s Guide to Android
+    -- Mark Murphy, http://www.commonsware.com
+    * Android website (http://www.android.com)
+    * The remainder of this presentation series
+    ** Busy Android Dev's Guide to UI
+    ** Busy Android Dev's Guide to Persistence
+    ** Busy Android Dev's Guide to Communication
+    ** ... and more
+  </slide>
+</presentation>

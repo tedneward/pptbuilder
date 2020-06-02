@@ -1,0 +1,13 @@
+<slideset baseDir="Testing">
+  <slide title="XIncluded slideset #1">
+    * This slide came from external-3 slideset!
+    -- That's pretty fucking cool
+  </slide>
+  <slide title="XIncluded slideset #2">
+    * This slide came from external-3 slideset!
+    -- That's pretty fucking cool
+    -- Next slide was imported from external-3, too
+  </slide>
+  <slide import="standalone-1.ppt" />
+</slideset>
+
