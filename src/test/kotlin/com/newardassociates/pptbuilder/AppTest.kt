@@ -5,28 +5,26 @@ package com.newardassociates.pptbuilder
 
 import com.vladsch.flexmark.ast.FencedCodeBlock
 import com.vladsch.flexmark.ast.IndentedCodeBlock
-import com.vladsch.flexmark.ext.attributes.AttributesExtension
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.ast.Node
 import com.vladsch.flexmark.util.data.MutableDataSet
-import com.vladsch.flexmark.util.misc.Extension
-import org.apache.poi.xslf.usermodel.SlideLayout
-import java.awt.Color
-import java.io.File
-import kotlin.test.Test
-import kotlin.test.assertNotNull
+import org.apache.poi.sl.usermodel.TextParagraph
 import org.apache.poi.xslf.usermodel.XMLSlideShow
+import org.apache.poi.xslf.usermodel.XSLFTextShape
 import org.w3c.dom.NodeList
+import java.awt.Color
+import java.awt.geom.Rectangle2D
+import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.util.*
-import javax.xml.*
-import javax.xml.parsers.*
-import javax.xml.xpath.*
-import javax.xml.validation.*
-import kotlin.test.assertEquals
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathFactory
+import kotlin.test.Test
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+
 
 class AppTest {
     @Test fun flexmarkMarkdownParse() {
@@ -143,6 +141,17 @@ class AppTest {
             println("Iterating through layouts in master ${master}")
             for (layout in master.slideLayouts) {
                 println("Discovering layout ${layout.name}")
+                for (ph in layout.placeholders) {
+                    println("\t${layout.name} has placeholder ${ph.shapeName}")
+                    if (ph.shapeName.startsWith("Footer")) {
+                        ph.setText("Copyright (c) 2020 Ted Neward")
+                    }
+                }
+            }
+            for (ph in master.shapes) {
+                if (ph.shapeName.startsWith("Footer")) {
+                    (ph as XSLFTextShape).setText("Copyright (c) 2020 Ted Neward")
+                }
             }
         }
 
@@ -180,6 +189,54 @@ class AppTest {
         r1.setFontColor(Color.BLUE)
         r1.setText("apachePOITest")
          */
+
+        val unused = {
+            println("Creating code slide")
+
+            val newSlide = ppt.createSlide(ppt.findLayout("Title and Content"))
+            newSlide.placeholders[0].text = "Code slide"
+            val body = newSlide.placeholders[1]
+            val dimensions = body.anchor
+
+            val newShape = newSlide.createTextBox()
+            newShape.anchor = Rectangle2D.Double(dimensions.x, dimensions.y,
+                    dimensions.width, dimensions.height / 2)
+            newSlide.removeShape(newSlide.placeholders[1])
+            val paragraph = newShape.addNewTextParagraph()
+            paragraph.setBulletStyle() // omit bullets
+            paragraph.fontAlign = TextParagraph.FontAlign.TOP
+            val run = paragraph.addNewTextRun()
+            run.fontFamily = "Consolas"
+            run.fontSize = 14.0
+            run.setFontColor(Color.WHITE)
+            newShape.fillColor = Color.BLACK
+            run.setText("console.log('Hello world')")
+        }()
+
+        val unused2 = {
+            val slide = ppt.createSlide()
+
+            val shape = slide.createTextBox()
+            shape.fillColor = Color.YELLOW
+            shape.anchor = Rectangle2D.Float(300.0f, 100.0f, 300.0f, 50.0f)
+            val p = shape.addNewTextParagraph()
+            val r1 = p.addNewTextRun()
+            r1.setText("The")
+            r1.setFontColor(Color.blue)
+            r1.fontSize = 24.0
+            val r2 = p.addNewTextRun()
+            r2.setText(" quick")
+            r2.setFontColor(Color.red)
+            r2.isBold = true
+            val r3 = p.addNewTextRun()
+            r3.setText(" brown")
+            r3.fontSize = 12.0
+            r3.isItalic = true
+            r3.isStrikethrough = true
+            val r4 = p.addNewTextRun()
+            r4.setText(" fox")
+            r4.isUnderlined = true
+        }()
 
         ppt.write(FileOutputStream(apachePOITestFile))
                 // for some reason, the slide isn't having text in it

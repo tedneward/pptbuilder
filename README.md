@@ -26,10 +26,13 @@ Java seems to be the best solution; it has an XIncluding XML parser, PPTX suppor
 
 * Create a diagnostic log of items happening (with verbosity levels)
 
-* XInclude-parse an XML file.
-
-* Parse the Markdown inside of a <slide> element to an AST
-  * Process the text as just straight text to the slide, with no formatting
-  * Process the text with fonting support
+* Fenced code blocks should be in separate text boxes
 
 * Provide "property" support, to customize slide decks with values (mostly to choose whether to include certain slides or sections or not)?
+
+* Title slide contact info--all should be relevant hyperlinks (mailto's for email, URL for twitter, etc)
+
+* Title slide contact info should have icons/emojis/whatever for email/Twitter/LinkedIn/etc
+
+* Work off of template files as starting points for processed output
+

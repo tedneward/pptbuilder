@@ -4,11 +4,12 @@ import com.vladsch.flexmark.ast.Heading
 import com.vladsch.flexmark.ast.Paragraph
 import com.vladsch.flexmark.ast.Text
 import org.junit.Test
+import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ParserTests {
-    val parser = Parser()
+    val parser = Parser(Properties())
 
     @Test
     fun presentationNodeOnly() {

@@ -3,6 +3,7 @@ package com.newardassociates.pptbuilder
 import com.vladsch.flexmark.ast.*
 import org.apache.poi.xslf.usermodel.*
 import java.io.FileOutputStream
+import java.time.Instant
 import java.util.*
 import java.util.logging.Logger
 
@@ -20,9 +21,6 @@ typealias Stack<T> = MutableList<T>
 // -- start from or associate to PPTX template
 class PPTXProcessor(options : Options) : Processor(options) {
     val logger = Logger.getLogger("PPTXProcessor")
-
-    override val formatChoice: String
-        get() = "pptx"
 
     override fun process(presentation: Presentation) {
         logger.info("Beginning PPTX processing of ${presentation.title} to ${options.outputFilename}")
@@ -76,27 +74,47 @@ class PPTXProcessor(options : Options) : Processor(options) {
         val slide = slideshow.createSlide(titleLayout)
 
         val titleTextbox = slide.getPlaceholder(0)
-        // TODO: Insert a line break if the title has a "|" in it?
-        titleTextbox.setText(presentation.title)
+        val titleText = presentation.title.replace("|", "\n")
+        titleTextbox.setText(titleText)
 
         val subtitleTextbox = slide.getPlaceholder(1)
         subtitleTextbox.clearText()
 
         val author = "${presentation.author} | ${presentation.affiliation}"
         // The contact line really should be all hyperlinks, when you think about it
-        val contact = "e: ${presentation.contactInfo["email"].toString()} | t: ${presentation.contactInfo["twitter"].toString()}\n"
         val authorRun = subtitleTextbox.addNewTextParagraph().addNewTextRun()
         authorRun.setText(author)
-        val contactRun = subtitleTextbox.addNewTextParagraph().addNewTextRun()
-        contactRun.fontSize = (authorRun.fontSize / 4) * 3
-        contactRun.setText(contact)
+
+        // Email
+        /*
+        val contact = "e: ${presentation.contactInfo["email"].toString()} | t: ${presentation.contactInfo["twitter"].toString()}\n"
+        val contactPara = subtitleTextbox.addNewTextParagraph()
+        val emailRun = contactPara.addNewTextRun()
+        emailRun.fontSize = (authorRun.fontSize / 4) * 3
+        val emailHyperlink = emailRun.createHyperlink()
+        emailHyperlink.address = "mailto:" + presentation.contactInfo["email"].toString()
+        emailHyperlink.label = presentation.contactInfo["email"].toString()
+
+        val sepRun = contactPara.addNewTextRun()
+        sepRun.fontSize = (authorRun.fontSize / 4) * 3
+        sepRun.setText(" | ")
+
+        val twitterRun = subtitleTextbox.addNewTextParagraph().addNewTextRun()
+        twitterRun.fontSize = (authorRun.fontSize / 4) * 3
+        val twitterHyperlink = twitterRun.createHyperlink()
+        val twitterHandle = presentation.contactInfo["twitter"].toString().dropWhile { c -> c == 'W' }
+        twitterHyperlink.address = "http://twitter.com/${twitterHandle}"
+        twitterHyperlink.label = twitterHandle
+         */
 
         // Edit deck properties
         val coreProperties = slideshow.properties.coreProperties
         //coreProperties.keywords = presentation.keywords
         coreProperties.title = presentation.title
         coreProperties.description = presentation.abstract.trimIndent()
-        coreProperties.creator = presentation.author
+        logger.info("Copyright (c) ${Calendar.getInstance().get(Calendar.YEAR)} ${presentation.author}")
+        coreProperties.creator =
+                "Copyright (c) ${Calendar.getInstance().get(Calendar.YEAR)} ${presentation.author}"
 
         coreProperties.keywords = "Keywords"
         coreProperties.category = "Category"
@@ -107,6 +125,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
         coreProperties.revision = "Revision"
         coreProperties.setSubjectProperty("Subject")
          */
+
     }
 
     override fun processSection(section: Section) {

@@ -11,8 +11,6 @@ abstract class Processor(val options : Options) {
         val templateFile : String? = null
     )
 
-    abstract val formatChoice : String
-
     open fun process(presentation : Presentation) {
         processPresentationNode(presentation)
         for (slide in presentation.slides) {
@@ -132,9 +130,6 @@ abstract class Processor(val options : Options) {
 
 class ASTProcessor(options : Options) : Processor(options) {
 
-    override val formatChoice: String
-        get() = "ast"
-
     var contents : String = ""
 
     override fun processPresentationNode(presentation : Presentation) {
@@ -153,9 +148,6 @@ class ASTProcessor(options : Options) : Processor(options) {
 }
 
 class TextProcessor(options: Options) : Processor(options) {
-    override val formatChoice: String
-        get() = "text"
-
     var tabCount = 0
     fun tabs() : String {
         var ret = ""
