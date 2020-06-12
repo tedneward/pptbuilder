@@ -3,10 +3,15 @@
  */
 package com.newardassociates.pptbuilder
 
+import com.vladsch.flexmark.ast.FencedCodeBlock
+import com.vladsch.flexmark.ast.IndentedCodeBlock
+import com.vladsch.flexmark.ext.attributes.AttributesExtension
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.ast.Node
 import com.vladsch.flexmark.util.data.MutableDataSet
+import com.vladsch.flexmark.util.misc.Extension
+import org.apache.poi.xslf.usermodel.SlideLayout
 import java.awt.Color
 import java.io.File
 import kotlin.test.Test
@@ -15,6 +20,7 @@ import org.apache.poi.xslf.usermodel.XMLSlideShow
 import org.w3c.dom.NodeList
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.util.*
 import javax.xml.*
 import javax.xml.parsers.*
 import javax.xml.xpath.*
@@ -45,6 +51,66 @@ class AppTest {
         assertNotNull(html, "<p>This is <em>Sparta</em></p>\\n")
     }
 
+    @Test fun markdownCodeBlockTest() {
+        val options = MutableDataSet()
+        /*
+        // This appears to have no effect on getting attributes to attach to the
+        // FencedCodeBlock and I have no idea why
+        options.set(Parser.EXTENSIONS, Arrays.asList(
+                AttributesExtension.create()
+        ) as Collection<Extension>)
+         */
+
+        //options.set(HtmlRenderer.SOFT_BREAK, "<br />\n");
+        val parser: Parser = Parser.builder(options).build()
+        val input = """
+            There is a method called `doSomething` and it looks like this:
+            ```
+            cout << "I did something!" << endl;
+            ```
+            
+            There is another method, called `doSomethingElse` and it looks like:
+            
+                    cout << "I did something different" << endl;
+
+            Now I would like some code with a language attached: {title="Title"}
+            
+            ```javascript{src=./code/console.js}
+            ```
+
+            Let's show off some embedded code:
+            ``` {language=javascript}
+            console.log("This code is in the XMLMD file")
+            ```
+    
+            Here is some imported code from `console.js`:
+            ``` {language=javascript src=Content/code/console.js}
+            ```
+
+            And now our slide is complete.
+        """.trimIndent()
+        val document: Node = parser.parse(input)
+
+        for (child in document.children) {
+            println("\t" + child)
+            if (child is IndentedCodeBlock) {
+                println("ICBCODE: " + child.contentChars)
+            }
+            if (child is FencedCodeBlock) {
+                println("FCBCODE: " + child.contentChars)
+                println("  attributes: ${child.attributes.base}")
+                println("  info: ${child.info}")
+            }
+            for (grandchild in child.children) {
+                println("\t\t" + grandchild)
+                for (ggchild in grandchild.children) {
+                    println("\t\t\t" + ggchild)
+                }
+            }
+        }
+        println("End of document")
+    }
+
     @Test fun xmlTest() {
         // Important note about XInclude: "The namespace for XInclude
         // was changed back to http://www.w3.org/2001/XInclude in the
@@ -73,16 +139,47 @@ class AppTest {
                 if (File(apachePOITestFile).exists()) { XMLSlideShow(FileInputStream(apachePOITestFile)) }
                 else { XMLSlideShow() }
 
-        val slide = ppt.createSlide()
+        for (master in ppt.slideMasters) {
+            println("Iterating through layouts in master ${master}")
+            for (layout in master.slideLayouts) {
+                println("Discovering layout ${layout.name}")
+            }
+        }
+
+        val slide = ppt.createSlide(ppt.findLayout("Title and Content"))
+        for (pl in slide.placeholders) {
+            println("Placeholder: ${pl}")
+        }
+
+        val content = slide.placeholders[1]
+        content.clearText()
+        content.text = "apachePOITest"
+
+        val para = content.addNewTextParagraph()
+        val run = para.addNewTextRun()
+        run.fontSize = 24.0
+        run.isBold = true
+        run.setText("First run")
+
+        val run2 = para.addNewTextRun()
+        run2.fontFamily = "Courier New"
+        run2.setText("Second run")
+
+        val run3 = para.addNewTextRun()
+        run3.fontFamily = "Consolas"
+        run3.fontSize = 20.0
+        run3.isItalic = true
+        run3.setText("Third run")
+
+        /*
         val shape = slide.createTextBox()
         val p = shape.addNewTextParagraph()
         val r1 = p.addNewTextRun()
-        r1.setText("apachePOITest")
         r1.fontSize = 24.0
         r1.isItalic = true
         r1.setFontColor(Color.BLUE)
-
-        assertEquals("apachePOITest", r1.rawText)
+        r1.setText("apachePOITest")
+         */
 
         ppt.write(FileOutputStream(apachePOITestFile))
                 // for some reason, the slide isn't having text in it

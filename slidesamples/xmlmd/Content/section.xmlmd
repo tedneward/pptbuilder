@@ -1,15 +1,15 @@
 <slideset>
 
-<section title="Sample section" />
-<slide title="A sample slide">
-# Hello to the world
+    <section title="Sample section" />
+    <slide title="A sample slide">
+        # Hello to the world
 
-* How are you today?
-</slide>
-<slide>
-# This slide has no explicit title
+        * How are you today?
+    </slide>
+    <slide>
+        # This slide has no explicit title
 
-* ... so it should be inferred from the section
-</slide>
+        * ... so it should be inferred from the section
+    </slide>
 
 </slideset>

@@ -6,12 +6,56 @@
 
             This is the second paragraph for an abstract.
         </abstract>
+        <!-- author section optional; defaults to what's in .pptbuilderprefs in home directory -->
+        <!--
+        <author>
+            <name>Ted Neward</name>
+            <affiliation>Neward &amp; Associates, LLC</affiliation>
+            <contact>
+                <email>ted@tedneward.com</email>
+                <twitter>@tedneward</twitter>
+                <linkedIn>tedneward-url-goes-here</linkedIn>
+                <blog>http://blogs.newardassociates.com</blog>
+            </contact>
+        </author>
+        -->
         <audience>For any intermediate Java (2 or more years) audience</audience>
-        <!-- keywords -->
+        <category>Testing</category>
+        <category>Presentation</category>
     </head>
 
-    <xi:include href="Content/credentials.xmlmd" />
+    <!-- xi:include href="Content/credentials.xmlmd" / -->
 
-    <xi:include href="Content/section.xmlmd" />
+    <!-- xi:include href="Content/section.xmlmd" / -->
+
+    <section title="Sample presentation" />
+    <!--
+    <slide>
+        * First
+          * Nested first
+        * Second
+          * Nested second
+        * Third
+          * Nested third
+    </slide>
+    -->
+    <slide>
+        * No special characters
+        * This *emphasized* bullet point
+        * This **strongly emphasized** second bullet point
+        * This `code` point
+    </slide>
+
+    <!-- slide>
+        Let's show off some embedded code:
+
+        ```
+        console.log("This code is in the XMLMD file")
+        ```
+
+        Here is some imported code from `console.js`:
+        ```{language=javascript src=Content/code/console.js}
+        ```
+    </slide -->
 </presentation>
 
