@@ -7,18 +7,19 @@
             This is the second paragraph for an abstract.
         </abstract>
         <!-- author section optional; defaults to what's in .pptbuilderprefs in home directory -->
-        <!--
         <author>
             <name>Ted Neward</name>
-            <affiliation>Neward &amp; Associates, LLC</affiliation>
+            <!-- title>Director, Tech Culture</title>
+            <affiliation>Quicken Loans</affiliation-->
             <contact>
                 <email>ted@tedneward.com</email>
-                <twitter>@tedneward</twitter>
-                <linkedIn>tedneward-url-goes-here</linkedIn>
+                <twitter>tedneward</twitter>
+        <!--
+                <linkedIn>tedneward</linkedIn>
                 <blog>http://blogs.newardassociates.com</blog>
+        -->
             </contact>
         </author>
-        -->
         <audience>For any intermediate Java (2 or more years) audience</audience>
         <category>Testing</category>
         <category>Presentation</category>
@@ -29,24 +30,30 @@
     <!-- xi:include href="Content/section.xmlmd" / -->
 
     <section title="Sample presentation" />
-    <!--
     <slide>
+        <notes>These are some notes to go with this slide. Let's see if they make it all the way through.</notes>
         * First
           * Nested first
         * Second
           * Nested second
         * Third
           * Nested third
+        <notes>This is a second set of notes, which should be OK.</notes>
     </slide>
-    -->
     <slide>
         * No special characters
         * This *emphasized* bullet point
         * This **strongly emphasized** second bullet point
         * This `code` point
     </slide>
+    <!--
+    <slide>
+        Let's do some non-bulleted text and see what happens.
+    </slide>
+    -->
 
-    <!-- slide>
+    <!--
+    <slide>
         Let's show off some embedded code:
 
         ```
@@ -56,6 +63,7 @@
         Here is some imported code from `console.js`:
         ```{language=javascript src=Content/code/console.js}
         ```
-    </slide -->
+    </slide>
+    -->
 </presentation>
 

@@ -3,9 +3,6 @@ package com.newardassociates.pptbuilder
 import com.vladsch.flexmark.ast.*
 
 class HTMLProcessor(options: Options) : Processor(options) {
-    override val formatChoice: String
-        get() = "html"
-
     var tabCount = 0
     fun tabs() : String {
         var ret = ""

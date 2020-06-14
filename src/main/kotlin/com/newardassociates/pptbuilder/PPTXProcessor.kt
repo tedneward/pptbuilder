@@ -1,6 +1,7 @@
 package com.newardassociates.pptbuilder
 
 import com.vladsch.flexmark.ast.*
+import org.apache.poi.common.usermodel.HyperlinkType
 import org.apache.poi.xslf.usermodel.*
 import java.io.FileOutputStream
 import java.time.Instant
@@ -80,50 +81,62 @@ class PPTXProcessor(options : Options) : Processor(options) {
         val subtitleTextbox = slide.getPlaceholder(1)
         subtitleTextbox.clearText()
 
-        val author = "${presentation.author} | ${presentation.affiliation}"
+        val author = "${presentation.author}\n${if (presentation.jobTitle != "") presentation.jobTitle + ", " else ""}${presentation.affiliation}"
         // The contact line really should be all hyperlinks, when you think about it
         val authorRun = subtitleTextbox.addNewTextParagraph().addNewTextRun()
         authorRun.setText(author)
 
         // Email
-        /*
-        val contact = "e: ${presentation.contactInfo["email"].toString()} | t: ${presentation.contactInfo["twitter"].toString()}\n"
         val contactPara = subtitleTextbox.addNewTextParagraph()
         val emailRun = contactPara.addNewTextRun()
         emailRun.fontSize = (authorRun.fontSize / 4) * 3
+        emailRun.setText("${presentation.contactInfo["email"]}")
         val emailHyperlink = emailRun.createHyperlink()
-        emailHyperlink.address = "mailto:" + presentation.contactInfo["email"].toString()
-        emailHyperlink.label = presentation.contactInfo["email"].toString()
+        emailHyperlink.linkToEmail(presentation.contactInfo["email"].toString())
 
         val sepRun = contactPara.addNewTextRun()
         sepRun.fontSize = (authorRun.fontSize / 4) * 3
         sepRun.setText(" | ")
 
-        val twitterRun = subtitleTextbox.addNewTextParagraph().addNewTextRun()
+        // Twitter
+        val twitterRun = contactPara.addNewTextRun()
         twitterRun.fontSize = (authorRun.fontSize / 4) * 3
+        twitterRun.setText("${
+            if (presentation.contactInfo["twitter"]!!.startsWith("@"))
+                presentation.contactInfo["twitter"]
+            else
+                "@${presentation.contactInfo["twitter"]}"
+        }")
         val twitterHyperlink = twitterRun.createHyperlink()
-        val twitterHandle = presentation.contactInfo["twitter"].toString().dropWhile { c -> c == 'W' }
-        twitterHyperlink.address = "http://twitter.com/${twitterHandle}"
-        twitterHyperlink.label = twitterHandle
-         */
+        twitterHyperlink.
+            linkToUrl("http://twitter.com/${presentation.contactInfo["twitter"].toString().dropWhile { c -> c == 'W' }}")
+
+        // TODO: Other contact info displayed: LinkedIn, Blog, Github
 
         // Edit deck properties
-        val coreProperties = slideshow.properties.coreProperties
-        //coreProperties.keywords = presentation.keywords
+        val properties = slideshow.properties
+
+        val coreProperties = properties.coreProperties
         coreProperties.title = presentation.title
-        coreProperties.description = presentation.abstract.trimIndent()
-        logger.info("Copyright (c) ${Calendar.getInstance().get(Calendar.YEAR)} ${presentation.author}")
-        coreProperties.creator =
+        coreProperties.setSubjectProperty("Subject Property")
+        coreProperties.creator = presentation.author
+        coreProperties.keywords = presentation.keywords.joinToString()
+        coreProperties.category = "Category"
+        coreProperties.description =
+                presentation.abstract.trimIndent() + "\n" +
                 "Copyright (c) ${Calendar.getInstance().get(Calendar.YEAR)} ${presentation.author}"
 
-        coreProperties.keywords = "Keywords"
-        coreProperties.category = "Category"
+        val extProperties = properties.extendedProperties
+        extProperties.company = presentation.affiliation
+        extProperties.application = "pptbuilder"
+        extProperties.manager = presentation.author
+
+        properties.commit()
         /*
         // None of these seem to appear in PPTX properties on macOS
         coreProperties.identifier = "Identifier"
         coreProperties.contentStatus = "Content Status"
         coreProperties.revision = "Revision"
-        coreProperties.setSubjectProperty("Subject")
          */
 
     }
@@ -136,6 +149,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
     }
 
     override fun processSlide(slide : Slide) {
+        logger.info("Creating slide for ${slide}")
         workingSlide = slideshow.createSlide(titleContentLayout)
 
         val title = workingSlide.placeholders[0]
@@ -146,6 +160,25 @@ class PPTXProcessor(options : Options) : Processor(options) {
         body.clearText()
 
         super.processSlide(slide)
+
+        // Process notes nodes, if any
+        if (slide.notes.size > 0) {
+            logger.info("Adding notes: '${slide.notes}' to slide")
+
+            val notes = slideshow.getNotesSlide(workingSlide)
+            val notesBoxList = notes.placeholders.filter { ph -> ph.shapeName.contains("Notes Placeholder", ignoreCase = true) }
+            if (! (notesBoxList.size > 0))
+                logger.warning("Cannot find the Notes text box in the Notes slide; will not be adding notes!")
+
+            val noteBox = notesBoxList[0]
+            noteBox.clearText()
+
+            for (note in slide.notes) {
+                // At some point, I may want to allow Markdown notes in <notes>?
+                val run = noteBox.addNewTextParagraph().addNewTextRun()
+                run.setText(note)
+            }
+        }
 
         listStack.clear()
     }

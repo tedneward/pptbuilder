@@ -43,40 +43,19 @@ class Parser(val properties : Properties) {
     private val audienceXPath = xpath.compile("/presentation/head/audience/text()")
     private val authorXPath = xpath.compile("/presentation/head/author/name/text()")
     private val affiliationXPath = xpath.compile("/presentation/head/author/affiliation/text()")
-    private val contactXPath = xpath.compile("/presentation/head/author/contact")
+    private val jobTitleXPath = xpath.compile("/presentation/head/author/title/text()")
+    private val contactXPath = xpath.compile("/presentation/head/author/contact/*")
     private val categoryXPath = xpath.compile("/presentation/head/category")
+    private val slideNotesXPath = xpath.compile("./notes")
 
     private fun parse(doc : XMLDocument): Presentation {
         check(doc.documentElement.tagName == "presentation")
         logger.info("Parsing Document instance w/root element ${doc.documentElement.tagName}")
 
+        // Talk-specific bits
         val title = titleXPath.evaluate(doc, XPathConstants.STRING).toString()
-        val author = authorXPath.evaluate(doc, XPathConstants.STRING).toString()
-        val affiliation = affiliationXPath.evaluate(doc, XPathConstants.STRING).toString()
         val abstract = abstractXPath.evaluate(doc, XPathConstants.STRING).toString()
         val audience = audienceXPath.evaluate(doc, XPathConstants.STRING).toString()
-
-        val contacts = contactXPath.evaluate(doc, XPathConstants.NODESET) as XMLNodeList
-        val contactInfo = mutableMapOf<String, String>()
-        // plop in contact info defaults first
-        if (properties.getProperty("contact.email") != null) contactInfo["email"] = properties.getProperty("contact.email")
-        if (properties.getProperty("contact.twitter") != null) contactInfo["twitter"] = properties.getProperty("contact.twitter")
-        if (properties.getProperty("contact.linkedin") != null) contactInfo["linkedin"] = properties.getProperty("contact.linkedin")
-        if (properties.getProperty("contact.blog") != null) contactInfo["blog"] = properties.getProperty("contact.blog")
-        logger.info("Propertes after defaults: ${properties}")
-
-        if (contacts.length > 0) {
-            for (n in 0..contacts.length-1) {
-                val node = contacts.item(n)
-                logger.info("Parsing ${node}")
-                when (node.localName) {
-                    "email" -> contactInfo["email"] = node.textContent
-                    "blog" -> contactInfo["blog"] = node.textContent
-                    "twitter" -> contactInfo["twitter"] = node.textContent
-                    "linkedin" -> contactInfo["linkedin"] = node.textContent
-                }
-            }
-        }
 
         val categories = categoryXPath.evaluate(doc, XPathConstants.NODESET) as XMLNodeList
         val keywords = mutableListOf<String>()
@@ -88,9 +67,40 @@ class Parser(val properties : Properties) {
             }
         }
 
+        // Author-specific bits
+        var author = authorXPath.evaluate(doc, XPathConstants.STRING).toString()
+        author = if (author == "") properties.get("author").toString() else author
+        var affiliation = affiliationXPath.evaluate(doc, XPathConstants.STRING).toString()
+        affiliation = if (affiliation == "") properties.get("affiliation").toString() else affiliation
+        var jobTitle = jobTitleXPath.evaluate(doc, XPathConstants.STRING).toString()
+        jobTitle = if (jobTitle == "") properties.get("title").toString() else jobTitle
+        logger.info("Author bits: ${author}|${affiliation}|${jobTitle}")
+
+
+        val contacts = contactXPath.evaluate(doc, XPathConstants.NODESET) as XMLNodeList
+        val contactInfo = mutableMapOf<String, String>()
+        for (prop in properties) {
+            if (prop.key.toString().startsWith("contact.")) {
+                val subkey = prop.key.toString().substringAfter("contact.")
+                contactInfo[subkey] = prop.value.toString()
+            }
+        }
+        if (contacts.length > 0) {
+            for (n in 0..contacts.length-1) {
+                val node = contacts.item(n)
+                when (node.localName) {
+                    "email" -> contactInfo["email"] = node.textContent
+                    "blog" -> contactInfo["blog"] = node.textContent
+                    "twitter" -> contactInfo["twitter"] = node.textContent
+                    "linkedin" -> contactInfo["linkedin"] = node.textContent
+                    "github" -> contactInfo["github"] = node.textContent
+                    else -> logger.warning("Unrecognized contact info: ${node.localName}/${node.textContent}")
+                }
+            }
+        }
+
         return Presentation(title, abstract, audience,
-                if (author == "") properties.get("author").toString() else author,
-                if (affiliation == "") properties.get("affiliation").toString() else affiliation,
+                author, affiliation, jobTitle,
                 contactInfo, keywords,
                 parseNodes(doc.documentElement.childNodes))
     }
@@ -110,7 +120,18 @@ class Parser(val properties : Properties) {
                     val titleNode = node.attributes.getNamedItem("title")
                     val title = if (titleNode != null) titleNode.nodeValue else sectionTitle
                     logger.info("Parsing slide title=${title}")
-                    ast.add(Slide(title, mdParser.parse(node.textContent.trimIndent()), node.textContent))
+
+                    val notesNode = slideNotesXPath.evaluate(node, XPathConstants.NODESET) as XMLNodeList?
+                    val notesList = mutableListOf<String>()
+                    if (notesNode != null && notesNode.length > 0) {
+                        for (n in 0..notesNode.length-1) {
+                            val notesNodeChild = notesNode.item(n)
+                            notesList.add(notesNodeChild.textContent)
+                            node.removeChild(notesNodeChild)
+                        }
+                    }
+
+                    ast.add(Slide(title, mdParser.parse(node.textContent.trimIndent()), node.textContent, notesList))
                 }
                 "section" -> {
                     sectionTitle = node.attributes.getNamedItem("title").nodeValue
@@ -129,37 +150,5 @@ class Parser(val properties : Properties) {
             }
         }
         return ast
-    }
-
-    private fun bodyTrim(incoming : String) : String {
-        var raw = incoming
-        logger.info("Trimming ||${raw}||")
-
-        // Count how many whitespace chars the Markdown appears to be
-        // indented by; we need to trim that many whitespace chars in
-        // front of each line. Complication: the first line might be all
-        // whitespace, thanks to the wonderful ways XML parsers treat
-        // text nodes.
-        var count = 0
-        while (raw[count].isWhitespace()) {
-            when (raw[count]) {
-                '\n' -> {
-                    raw = raw.substring(count + 1)
-                    count = 0
-                }
-                ' ', '\t' -> count += 1
-            }
-        }
-        logger.info("There appear to be $count whitespace characters in front of each line")
-
-        var trimmed = ""
-        for (line in raw.trimEnd().split('\n')) {
-            if (line.trim().isEmpty())
-                continue
-            trimmed += line.substring(count) + "\n"
-        }
-
-        logger.info("Returning trimmed string to look like ||${trimmed}||")
-        return trimmed
     }
 }

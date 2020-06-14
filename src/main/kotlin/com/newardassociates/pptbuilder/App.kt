@@ -10,16 +10,9 @@ import java.io.FileOutputStream
 import java.io.FileWriter
 import java.util.*
 
-class App(val parser : Parser, val processor : Processor) {
-    fun run(file : File) {
-        val preso = parser.parse(file)
-        processor.process(preso)
-    }
-}
-
 fun main(args: Array<String>) {
     val properties = Properties()
-    val propertiesFile = System.getProperty("user.home") + "/.pptbuilder.properties"
+    val propertiesFile = "${System.getProperty("user.home")}/.pptbuilder.properties"
     if (File(propertiesFile).exists())
         properties.load(FileInputStream(propertiesFile))
     println("Using properties from ${propertiesFile}: ${properties}")
@@ -27,29 +20,38 @@ fun main(args: Array<String>) {
     val cliParser = ArgParser("pptbuilder")
     //val input by cliParser.argument(ArgType.String, description = "Input file")
     val output by cliParser.argument(ArgType.String, description = "Output file name").optional()
+
+    val outputDir by cliParser.option(ArgType.String, fullName = "outputDir", shortName = "d",
+            description = "Output directory into which to place the generated file").default("")
     val format by cliParser.option(ArgType.Choice(listOf("pptx", "ast", "text")),
             fullName = "format", shortName = "f",
             description = "Output format to use").default("pptx")
     val template by cliParser.option(ArgType.String, fullName = "template", shortName = "t",
             description = "The processing template file to use to start from (pptx only)")
-    val debug by cliParser.option(ArgType.Boolean, fullName = "debug", shortName = "d",
+    val debug by cliParser.option(ArgType.Boolean, fullName = "verbose", shortName = "v",
             description="Turn on debug/verbose mode").default(false)
 
     cliParser.parse(args)
 
     val inputFile = "./slidesamples/xmlmd/Testing.xmlmd" //input.toString()
     val outputFile = (if (output != null) output.toString() else inputFile.substringBeforeLast('.'))
+    val templateFile = (if (template != null) template.toString() else properties.getProperty("templateFile"))
 
-    println("Parsing ${inputFile} to ${outputFile}...")
+    println("Parsing ${inputFile} to ${outputFile} ${if (templateFile != null) "using ${templateFile}..." else ""}...")
 
-    val processorOptions = Processor.Options(outputFilename = outputFile!!)
+    val processorOptions = Processor.Options(outputFilename = outputFile)
+    if (templateFile != null)
+        processorOptions.templateFile = templateFile
+
     val processor = when (format.toString()) {
         "ast" -> ASTProcessor(processorOptions)
+        "nop" -> NOPProcessor(processorOptions)  // just for verifying input, don't generate output
         "text" -> TextProcessor(processorOptions)
         "pptx" -> PPTXProcessor(processorOptions)
         else -> throw IllegalArgumentException("Unrecognized format: " + format.toString())
     }
 
-    val app = App(Parser(properties), processor)
-    app.run(File(inputFile))
+    val parser = Parser(properties)
+    val preso = parser.parse(File(inputFile))
+    processor.process(preso)
 }

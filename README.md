@@ -34,5 +34,25 @@ Java seems to be the best solution; it has an XIncluding XML parser, PPTX suppor
 
 * Title slide contact info should have icons/emojis/whatever for email/Twitter/LinkedIn/etc
 
+* Allow <slide>/<notes> nodes to use Markdown styling
+
 * Work off of template files as starting points for processed output
 
+LinkedIn URLs look like: https://www.linkedin.com/in/tedneward/
+Twitter URLs look like: https://twitter.com/tedneward
+Github URLs look like: https://github.com/tedneward
+
+## Sample "~/.pptbuilder.properties" file
+
+```
+#PPTBuilder
+#Fri Jun 12 02:55:15 PDT 2020
+contact.blog=http\://blogs.tedneward.com
+affiliation=Neward & Associates
+author=Ted Neward
+contact.email=ted@tedneward.com
+contact.github=tedneward
+contact.twitter=@tedneward
+contact.linkedin=tedneward
+#templateFile=/Users/tedneward/Projects/Presentations/Templates/__Template.ppt
+```

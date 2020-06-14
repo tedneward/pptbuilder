@@ -6,9 +6,10 @@ import com.vladsch.flexmark.util.ast.VisitHandler
 
 abstract class Processor(val options : Options) {
     data class Options(
-        val outputFilename : String,
+        val outputFilename : String = "",
+        var templateFile : String = "",
         val noTitleSlide : Boolean = false,
-        val templateFile : String? = null
+        val noNotesSlides : Boolean = false
     )
 
     open fun process(presentation : Presentation) {
@@ -31,8 +32,6 @@ abstract class Processor(val options : Options) {
         // Image
         // ImageRef
         // Link
-        // BulletedListItem?
-        // OrderedListItem?
 
         visitor.addHandler(VisitHandler(Heading::class.java, fun (head : Heading) {
             heading(head)
@@ -127,6 +126,12 @@ abstract class Processor(val options : Options) {
 }
 
 // --------------------------------------------------------
+// Literally, do nothing--this is just to verify the input
+class NOPProcessor(options : Options) : Processor(options) {
+    override fun processPresentationNode(presentation : Presentation) { }
+    override fun processSection(section : Section) { }
+    override fun processSlide(slide : Slide) { }
+}
 
 class ASTProcessor(options : Options) : Processor(options) {
 

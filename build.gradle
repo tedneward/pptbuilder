@@ -39,3 +39,16 @@ application {
     // Define the main class for the application.
     mainClassName = 'com.newardassociates.pptbuilder.AppKt'
 }
+
+task uberJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+
+    from sourceSets.main.output
+
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
+}

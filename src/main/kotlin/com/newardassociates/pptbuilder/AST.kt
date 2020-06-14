@@ -11,6 +11,7 @@ data class Presentation(
     val abstract : String,
     val audience : String,
     val author : String,
+    val jobTitle : String,
     val affiliation : String,
     val contactInfo : Map<String, String>,
     val keywords : List<String>,
@@ -20,7 +21,8 @@ data class Presentation(
 data class Slide(
     val title : String,
     val markdownBody : MDDocument,
-    val rawBody : String
+    val rawBody : String,
+    val notes : List<String>
 ) : Node()
 
 data class Section(
