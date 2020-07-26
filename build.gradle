@@ -26,9 +26,9 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'com.vladsch.flexmark:flexmark-all:0.61.30'
     implementation 'org.jetbrains.kotlinx:kotlinx-cli:0.2.1'
-    compile group: 'org.apache.poi', name: 'poi', version: '4.1.2'
-    compile group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.2'
-    compile group: 'org.apache.poi', name: 'poi-scratchpad', version: '4.1.2'
+    implementation 'org.apache.poi:poi:4.1.2'
+    implementation 'org.apache.poi:poi-ooxml:4.1.2'
+    implementation 'org.apache.poi:poi-scratchpad:4.1.2'
 
     // Use the Kotlin test library & JUnit
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
