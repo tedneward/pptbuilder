@@ -136,7 +136,7 @@ Discovering layout Title Slide
 	Title Slide has placeholder Footer Placeholder 4
 	Title Slide has placeholder Slide Number Placeholder 5
  */
-class Title(deck: Deck, titleText: String, subtitleText: String)
+class Title(deck: Deck, titleText: String, subtitleText: String = "")
     : Slide(deck, deck.titleLayout) {
     lateinit var title: XSLFTextShape
     lateinit var subtitle: XSLFTextShape
@@ -145,10 +145,12 @@ class Title(deck: Deck, titleText: String, subtitleText: String)
         for (ph in slide.placeholders) {
             if (ph.shapeName.contains("Title")) {
                 title = ph
+                title.clearText()
                 title.text = titleText
             }
             if (ph.shapeName.contains("Subtitle")) {
                 subtitle = ph
+                subtitle.clearText()
                 subtitle.text = subtitleText
             }
         }

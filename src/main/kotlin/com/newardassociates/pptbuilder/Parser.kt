@@ -1,18 +1,19 @@
 package com.newardassociates.pptbuilder
 
 import com.vladsch.flexmark.util.data.MutableDataSet
+import org.xml.sax.InputSource
 import java.io.File
 import java.io.StringReader
-import java.util.logging.Logger
-import javax.xml.parsers.*
-import javax.xml.xpath.*
-import org.xml.sax.InputSource
 import java.util.*
-import org.w3c.dom.Document as XMLDocument
-import org.w3c.dom.Node as XMLNode
-import org.w3c.dom.NodeList as XMLNodeList
+import java.util.logging.Logger
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.xpath.XPath
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathExpression
+import javax.xml.xpath.XPathFactory
 import com.vladsch.flexmark.parser.Parser as MDParser
-import com.vladsch.flexmark.util.ast.Node as MDNode
+import org.w3c.dom.Document as XMLDocument
+import org.w3c.dom.NodeList as XMLNodeList
 
 class Parser(val properties : Properties) {
     private val logger = Logger.getLogger(Parser::class.java.canonicalName)
@@ -44,11 +45,15 @@ class Parser(val properties : Properties) {
     private val authorXPath = xpath.compile("/presentation/head/author/name/text()")
     private val affiliationXPath = xpath.compile("/presentation/head/author/affiliation/text()")
     private val jobTitleXPath = xpath.compile("/presentation/head/author/title/text()")
-    private val contactXPath = xpath.compile("/presentation/head/author/contact/*")
+    private val emailXPath = xpath.compile("/presentation/head/author/contact/email")
+    private val blogXPath = xpath.compile("/presentation/head/author/contact/blog")
+    private val twitterXPath = xpath.compile("/presentation/head/author/contact/twitter")
+    private val githubXPath = xpath.compile("/presentation/head/author/contact/github")
+    private val linkedinXPath = xpath.compile("/presentation/head/author/contact/linkedin")
     private val categoryXPath = xpath.compile("/presentation/head/category")
     private val slideNotesXPath = xpath.compile("./notes")
 
-    private fun parse(doc : XMLDocument): Presentation {
+    private fun parse(doc: XMLDocument): Presentation {
         check(doc.documentElement.tagName == "presentation")
         logger.info("Parsing Document instance w/root element ${doc.documentElement.tagName}")
 
@@ -61,7 +66,7 @@ class Parser(val properties : Properties) {
         val keywords = mutableListOf<String>()
         if (categories.length > 0) {
             // pull out the categories for keywords in the doc
-            for (n in 0..categories.length-1) {
+            for (n in 0..categories.length - 1) {
                 val node = categories.item(n)
                 keywords.add(node.textContent)
             }
@@ -69,38 +74,29 @@ class Parser(val properties : Properties) {
 
         // Author-specific bits
         var author = authorXPath.evaluate(doc, XPathConstants.STRING).toString()
-        author = if (author == "") properties.get("author").toString() else author
-        var affiliation = affiliationXPath.evaluate(doc, XPathConstants.STRING).toString()
-        affiliation = if (affiliation == "") properties.get("affiliation").toString() else affiliation
-        var jobTitle = jobTitleXPath.evaluate(doc, XPathConstants.STRING).toString()
-        jobTitle = if (jobTitle == "") properties.get("title").toString() else jobTitle
+        author = if (author == "") (properties["author"].toString()) else author
+
+        fun getXMLOrPropertiesValue(xPath: XPathExpression, propName: String): String {
+            if (xPath.evaluate(doc, XPathConstants.STRING) != null)
+                return xPath.evaluate(doc, XPathConstants.STRING).toString()
+            else if (properties[propName] != null)
+                return properties[propName].toString()
+            return ""
+        }
+
+        val affiliation = getXMLOrPropertiesValue(affiliationXPath, "affiliation")
+        val jobTitle = getXMLOrPropertiesValue(jobTitleXPath, "jobTitle")
         logger.info("Author bits: ${author}|${affiliation}|${jobTitle}")
 
-
-        val contacts = contactXPath.evaluate(doc, XPathConstants.NODESET) as XMLNodeList
         val contactInfo = mutableMapOf<String, String>()
-        for (prop in properties) {
-            if (prop.key.toString().startsWith("contact.")) {
-                val subkey = prop.key.toString().substringAfter("contact.")
-                contactInfo[subkey] = prop.value.toString()
-            }
-        }
-        if (contacts.length > 0) {
-            for (n in 0..contacts.length-1) {
-                val node = contacts.item(n)
-                when (node.localName) {
-                    "email" -> contactInfo["email"] = node.textContent
-                    "blog" -> contactInfo["blog"] = node.textContent
-                    "twitter" -> contactInfo["twitter"] = node.textContent
-                    "linkedin" -> contactInfo["linkedin"] = node.textContent
-                    "github" -> contactInfo["github"] = node.textContent
-                    else -> logger.warning("Unrecognized contact info: ${node.localName}/${node.textContent}")
-                }
-            }
-        }
+        contactInfo["email"] = getXMLOrPropertiesValue(emailXPath, "contact.email")
+        contactInfo["blog"] = getXMLOrPropertiesValue(emailXPath, "contact.blog")
+        contactInfo["twitter"] = getXMLOrPropertiesValue(emailXPath, "contact.twitter")
+        contactInfo["github"] = getXMLOrPropertiesValue(emailXPath, "contact.github")
+        contactInfo["linkedin"] = getXMLOrPropertiesValue(emailXPath, "contact.linkedin")
 
         return Presentation(title, abstract, audience,
-                author, affiliation, jobTitle,
+                author, jobTitle, affiliation,
                 contactInfo, keywords,
                 parseNodes(doc.documentElement.childNodes))
     }
