@@ -34,4 +34,50 @@ class PPTXProcessorTests {
 
         PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleOnly.pptx")).process(Parser(Properties()).parse(xmlmd))
     }
+
+    @Test
+    fun pptxTitleSection() {
+        val xmlmd = """
+<presentation>
+    <head>
+        <title>Busy Developer's Guide to|pptxTitleSection</title>
+        <abstract>None</abstract>
+        <author><name>Ted Neward</name></author>
+        <audience>For any intermediate Java (2 or more years) audience</audience>
+        <category>Testing</category>
+        <category>Presentation</category>
+    </head>
+    
+    <section title="Section Slide" subtitle="Section subtitle" />
+</presentation>
+""".trimIndent()
+
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleSection.pptx")).process(Parser(Properties()).parse(xmlmd))
+    }
+
+    @Test
+    fun pptxTitleOneContent() {
+        val xmlmd = """
+<presentation>
+    <head>
+        <title>Busy Developer's Guide to|pptxTitleOneContent</title>
+        <abstract>None</abstract>
+        <author><name>Ted Neward</name></author>
+        <audience>For any intermediate Java (2 or more years) audience</audience>
+        <category>Testing</category>
+        <category>Presentation</category>
+    </head>
+    
+    <section title="Section Slide" subtitle="Section subtitle" />
+    <slide title="Content slide">
+    # Our slide header
+    * This is an important point
+    * This is another important point
+    * This point is pointless
+    </slide>
+</presentation>
+""".trimIndent()
+
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleOneContent.pptx")).process(Parser(Properties()).parse(xmlmd))
+    }
 }

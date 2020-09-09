@@ -26,8 +26,9 @@ data class Slide(
 ) : Node()
 
 data class Section(
-    val title : String,
-    val quote : String?,
-    val attribution : String?,
-    val defaultSlideTitle : String = title
+        val title: String,
+        val subtitle: String?,
+        val quote: String?,
+        val attribution: String?,
+        val defaultSlideTitle: String = title
 ) : Node()

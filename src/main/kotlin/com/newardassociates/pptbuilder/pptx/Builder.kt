@@ -30,6 +30,8 @@ class Deck(val ppt: XMLSlideShow) {
                     SlideLayout.TITLE_AND_CONTENT -> titleContentLayout = layout
                     SlideLayout.TITLE_ONLY -> titleOnlyLayout = layout
                     SlideLayout.BLANK -> blankLayout = layout
+                    else -> {
+                    }
                 }
             }
         }

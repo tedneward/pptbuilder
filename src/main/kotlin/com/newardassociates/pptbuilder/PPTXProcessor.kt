@@ -5,9 +5,12 @@ import com.newardassociates.pptbuilder.pptx.SectionHeader
 import com.newardassociates.pptbuilder.pptx.Title
 import com.newardassociates.pptbuilder.pptx.TitleAndContent
 import com.vladsch.flexmark.ast.*
+import org.apache.poi.xslf.usermodel.XSLFTextParagraph
+import org.apache.poi.xslf.usermodel.XSLFTextRun
 import java.io.FileOutputStream
 import java.util.*
 import java.util.logging.Logger
+import com.newardassociates.pptbuilder.pptx.Slide as pptxSlide
 
 
 // Things to do:
@@ -15,13 +18,20 @@ import java.util.logging.Logger
 class PPTXProcessor(options : Options) : Processor(options) {
     val logger = Logger.getLogger("PPTXProcessor")
     val deck = Deck()
+    var currentSlide: pptxSlide? = null
+    var currentPara: XSLFTextParagraph? = null
+    var currentRun: XSLFTextRun? = null
 
     override fun process(presentation: Presentation) {
         logger.info("Beginning PPTX processing of ${presentation.title} to ${options.outputFilename}")
         super.process(presentation)
+
+        logger.info("Writing contents to file...")
+        deck.ppt.write(FileOutputStream(options.outputFilename))
     }
 
     override fun processPresentationNode(presentation: Presentation) {
+        logger.info("Processing presentation node...")
         val titleSlide = Title(deck, presentation.title.replace("|", "\n"), "")
 
         // Subtitle text -- author, affiliation, and contact information
@@ -39,7 +49,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
         val contactPara = titleSlide.subtitle.addNewTextParagraph()
         val contactFontSize = (contactPara.defaultFontSize * 3) / 4
 
-        if (presentation.contactInfo["email"] != null) {
+        if (presentation.contactInfo["email"] != null && presentation.contactInfo["email"]!!.isNotEmpty()) {
             val run = contactPara.addNewTextRun()
             run.fontSize = contactFontSize
             run.setText(presentation.contactInfo["email"])
@@ -47,7 +57,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
             link.linkToEmail(presentation.contactInfo["email"])
         }
 
-        if (presentation.contactInfo["blog"] != null) {
+        if (presentation.contactInfo["blog"] != null && presentation.contactInfo["blog"]!!.isNotEmpty()) {
             contactPara.addNewTextRun().setText(" ")
 
             val run = contactPara.addNewTextRun()
@@ -57,7 +67,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
             link.linkToUrl(presentation.contactInfo["blog"])
         }
 
-        if (presentation.contactInfo["twitter"] != null) {
+        if (presentation.contactInfo["twitter"] != null && presentation.contactInfo["twitter"]!!.isNotEmpty()) {
             contactPara.addNewTextRun().setText(" ")
 
             val run = contactPara.addNewTextRun()
@@ -74,46 +84,65 @@ class PPTXProcessor(options : Options) : Processor(options) {
         deck.keywords = presentation.keywords.joinToString()
         deck.description = presentation.abstract.trimIndent() + "\n" +
                 "Copyright (c) ${Calendar.getInstance().get(Calendar.YEAR)} ${presentation.author}"
-
-        deck.ppt.write(FileOutputStream(options.outputFilename))
     }
 
     override fun processSection(section: Section) {
-        SectionHeader(deck, section.title, section.quote.orEmpty())
+        logger.info("Creating section ${section.title} slide...")
+        val sh = if (section.subtitle != null && section.subtitle.isNotBlank())
+            SectionHeader(deck, section.title, section.subtitle)
+        else
+            SectionHeader(deck, section.title, section.quote.orEmpty() + "\n --" + section.attribution.orEmpty())
+
+        println("sh = " + sh)
     }
 
     override fun processSlide(slide : Slide) {
         logger.info("Creating slide for ${slide}")
-        val s = TitleAndContent(deck, slide.title)
+        currentSlide = TitleAndContent(deck, slide.title)
 
         super.processSlide(slide)
     }
 
     override fun heading(head : Heading) {
+        (currentSlide!! as TitleAndContent).header(head.childChars.unescape())
     }
 
     override fun startBulletList(blist: BulletList) {
-    }
-    override fun startBulletListItem(blistitem: BulletListItem) {
-    }
-    override fun endBulletListItem(blistitem: BulletListItem) {
-    }
-    override fun endBulletList(blist: BulletList) {
+        (currentSlide!! as TitleAndContent).newList()
     }
 
-    override fun startOrderedListItem(olistitem: OrderedListItem) {
+    override fun startBulletListItem(blistitem: BulletListItem) {
+        currentPara = (currentSlide!! as TitleAndContent).newBulletListItem()
     }
-    override fun endOrderedListItem(olistitem: OrderedListItem) {
+
+    override fun endBulletListItem(blistitem: BulletListItem) {
+        currentPara = null
     }
+
+    override fun endBulletList(blist: BulletList) {
+        (currentSlide!! as TitleAndContent).endBulletList()
+    }
+
+    override fun startOrderedListItem(olistitem: OrderedListItem) {}
+    override fun endOrderedListItem(olistitem: OrderedListItem) {}
 
     override fun startEmphasis(em: Emphasis) {
+        if (currentRun == null)
+            currentRun = currentPara!!.addNewTextRun()
+        currentRun!!.isItalic = true
     }
+
     override fun endEmphasis(em: Emphasis) {
+        currentRun = null
     }
 
     override fun startStrongEmphasis(em: StrongEmphasis) {
+        if (currentRun == null)
+            currentRun = currentPara!!.addNewTextRun()
+        currentRun!!.isBold = true
     }
     override fun endStrongEmphasis(em: StrongEmphasis) {
+        currentRun = null
     }
 
     override fun startCode(code : Code) {
@@ -122,5 +151,8 @@ class PPTXProcessor(options : Options) : Processor(options) {
     }
 
     override fun text(text : Text) {
+        if (currentRun == null)
+            currentRun = currentPara!!.addNewTextRun()
+        currentRun!!.setText(text.childChars.unescape())
     }
 }

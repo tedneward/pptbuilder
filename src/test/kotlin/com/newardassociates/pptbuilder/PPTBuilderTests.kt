@@ -1,9 +1,6 @@
 package com.newardassociates.pptbuilder
 
-import com.newardassociates.pptbuilder.pptx.Deck
-import com.newardassociates.pptbuilder.pptx.Title
-import com.newardassociates.pptbuilder.pptx.TitleAndContent
-import com.newardassociates.pptbuilder.pptx.TitleOnly
+import com.newardassociates.pptbuilder.pptx.*
 import java.io.FileOutputStream
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -39,6 +36,12 @@ class PPTBuilderTests {
         println(ts)
 
         deck.ppt.write(FileOutputStream(outPath + "writeTitleSlide.pptx"))
+    }
+
+    @Test
+    fun writeSectionSlide() {
+        SectionHeader(deck, "Title Slide Text", "Subtitle Text")
+        deck.ppt.write(FileOutputStream(outPath + "writeSectionSlide.pptx"))
     }
 
     @Test

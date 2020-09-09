@@ -90,10 +90,10 @@ class Parser(val properties : Properties) {
 
         val contactInfo = mutableMapOf<String, String>()
         contactInfo["email"] = getXMLOrPropertiesValue(emailXPath, "contact.email")
-        contactInfo["blog"] = getXMLOrPropertiesValue(emailXPath, "contact.blog")
-        contactInfo["twitter"] = getXMLOrPropertiesValue(emailXPath, "contact.twitter")
-        contactInfo["github"] = getXMLOrPropertiesValue(emailXPath, "contact.github")
-        contactInfo["linkedin"] = getXMLOrPropertiesValue(emailXPath, "contact.linkedin")
+        contactInfo["blog"] = getXMLOrPropertiesValue(blogXPath, "contact.blog")
+        contactInfo["twitter"] = getXMLOrPropertiesValue(twitterXPath, "contact.twitter")
+        contactInfo["github"] = getXMLOrPropertiesValue(githubXPath, "contact.github")
+        contactInfo["linkedin"] = getXMLOrPropertiesValue(linkedinXPath, "contact.linkedin")
 
         return Presentation(title, abstract, audience,
                 author, jobTitle, affiliation,
@@ -130,11 +130,17 @@ class Parser(val properties : Properties) {
                     ast.add(Slide(title, mdParser.parse(node.textContent.trimIndent()), node.textContent, notesList))
                 }
                 "section" -> {
-                    sectionTitle = node.attributes.getNamedItem("title").nodeValue
-                    // Get subtitle, quote, and attribution, if present; either subtitle or quote
-                    // has to be there, and attribution should only be there if quote is
+                    val attrsMap = node.attributes
+                    sectionTitle = attrsMap.getNamedItem("title").nodeValue
                     logger.info("Parsing section title=${sectionTitle}")
-                    ast.add(Section(sectionTitle, null, null))
+                    if (attrsMap.getNamedItem("subtitle") != null) {
+                        val sectionSubtitle = node.attributes.getNamedItem("subtitle").nodeValue
+                        ast.add(Section(sectionTitle, sectionSubtitle, null, null))
+                    } else {
+                        val sectionQuote = node.attributes.getNamedItem("quote").nodeValue
+                        val sectionAttribution = node.attributes.getNamedItem("attribution").nodeValue
+                        ast.add(Section(sectionTitle, null, sectionQuote, sectionAttribution))
+                    }
                 }
                 "slideset" -> {
                     logger.info("Parsing slideset")
