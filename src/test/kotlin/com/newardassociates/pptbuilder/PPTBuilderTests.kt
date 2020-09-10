@@ -85,7 +85,7 @@ class PPTBuilderTests {
         ts.listItem("This is a bullet point")
         ts.listItem("This is a second bullet point")
         ts.listItem("This is a third bullet point")
-        ts.endBulletList()
+        ts.endList()
 
         deck.ppt.write(FileOutputStream(outPath + "writeHeaderAndOneLevelBulletList.pptx"))
     }
@@ -103,13 +103,13 @@ class PPTBuilderTests {
         ts.listItem("This is a sub-sub-point")
         ts.newList()
         ts.listItem("This is a sub-sub-sub-point")
-        ts.endBulletList()
-        ts.endBulletList()
+        ts.endList()
+        ts.endList()
         ts.listItem("THis is a second sub-point")
-        ts.endBulletList()
+        ts.endList()
         ts.listItem("This is a second bullet point")
         ts.listItem("This is a third bullet point")
-        ts.endBulletList()
+        ts.endList()
 
         deck.ppt.write(FileOutputStream(outPath + "writeHeaderAndFourLevelsBulletList.pptx"))
     }
@@ -120,7 +120,7 @@ class PPTBuilderTests {
         ts.header("Important stuff!")
 
         ts.newList()
-        val para = ts.newBulletListItem()
+        val para = ts.listItem()
         val run1 = para.addNewTextRun()
         run1.setText("This ")
         val run2 = para.addNewTextRun()
@@ -134,7 +134,7 @@ class PPTBuilderTests {
         run4.isBold = true
         run4.setText("text")
 
-        ts.endBulletList()
+        ts.endList()
 
         deck.ppt.write(FileOutputStream(outPath + "writeHeaderWithBulletRuns.pptx"))
     }

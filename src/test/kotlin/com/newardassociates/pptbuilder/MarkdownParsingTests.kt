@@ -21,4 +21,20 @@ class MarkdownParsingTests {
         val mdAST = mdParser.parse(markdown)
         print(AstCollectingVisitor().collectAndGetAstText(mdAST))
     }
+
+    @Test
+    fun markdownNoHeader() {
+        val markdown = """
+This is just straight text
+
+* This is some *emphasized* and some **heavily emphasized** text
+* This is a bulleted list
+  * This is the first indented list item
+  * This is the second indented list item
+"""
+        val mdParserOptions = MutableDataSet()
+        val mdParser = Parser.builder(mdParserOptions).build()
+        val mdAST = mdParser.parse(markdown)
+        print(AstCollectingVisitor().collectAndGetAstText(mdAST))
+    }
 }

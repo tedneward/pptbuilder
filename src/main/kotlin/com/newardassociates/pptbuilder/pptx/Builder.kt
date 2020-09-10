@@ -2,16 +2,6 @@ package com.newardassociates.pptbuilder.pptx
 
 import org.apache.poi.xslf.usermodel.*
 
-/*
-Stack implementation on top of MutableList<T>
- */
-fun <T> MutableList<T>.push(item: T) = this.add(this.count(), item)
-fun <T> MutableList<T>.pop(): T? = if (this.count() > 0) this.removeAt(this.count() - 1) else null
-fun <T> MutableList<T>.peek(): T? = if (this.count() > 0) this[this.count() - 1] else null
-fun <T> MutableList<T>.hasMore() = this.count() > 0
-typealias Stack<T> = MutableList<T>
-
-
 class Deck(val ppt: XMLSlideShow) {
     constructor() : this(XMLSlideShow()) {}
 
@@ -221,24 +211,9 @@ class TitleAndContent(deck: Deck, titleText: String)
         run.setText(text)
     }
 
-    var workingBulletList: Stack<XSLFTextParagraph> = mutableListOf()
     var bulletIndex = -1 // 0 is an acceptable level of bullets
     fun newList() {
         bulletIndex += 1
-    }
-
-    fun newBulletListItem(): XSLFTextParagraph {
-        val para = content.addNewTextParagraph()
-        para.isBullet = true
-        para.indentLevel = bulletIndex
-        workingBulletList.push(para)
-        return workingBulletList.peek()!!
-    }
-
-    fun newUnbulletedListItem(): XSLFTextParagraph {
-        val para = newBulletListItem()
-        para.isBullet = false
-        return para
     }
 
     fun listItem(text: String) {
@@ -248,12 +223,14 @@ class TitleAndContent(deck: Deck, titleText: String)
         val run = para.addNewTextRun()
         run.setText(text)
     }
-
-    fun endList() {
-        workingBulletList.pop()
+    fun listItem() : XSLFTextParagraph {
+        val para = content.addNewTextParagraph()
+        para.isBullet = true
+        para.indentLevel = bulletIndex
+        return para
     }
 
-    fun endBulletList() {
+    fun endList() {
         if (bulletIndex == -1)
             throw Exception("Bullet list nesting unbalanced! Too many ends against begins")
         bulletIndex -= 1
