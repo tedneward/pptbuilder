@@ -167,4 +167,37 @@ class PPTXProcessorTests {
 
         PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleOrderedListContent.pptx")).process(Parser(Properties()).parse(xmlmd))
     }
+
+    @Test
+    fun pptxLegacyCode() {
+        val xmlmd = """
+<presentation>
+    <head>
+        <title>Busy Developer's Guide to|pptxLegacyCode</title>
+        <abstract>None</abstract>
+        <author><name>Ted Neward</name></author>
+        <audience>For any intermediate Java (2 or more years) audience</audience>
+        <category>Testing</category>
+        <category>Presentation</category>
+    </head>
+    
+    <section title="Section Slide" subtitle="Section subtitle" />
+    <slide title="Content slide">
+    No slide header, per se
+    * This is an important point
+    * This is another important point
+      * This is *important*
+      * This is **really important**
+      * But this is `code` that's not so important
+    * This point is pointless
+    </slide>
+    <slide title="Code slide">
+        <text>Text section</text>
+        <code language="js">console.out("Code section")</code>
+    </slide>
+</presentation>
+""".trimIndent()
+
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxLegacyCode.pptx")).process(Parser(Properties()).parse(xmlmd))
+    }
 }

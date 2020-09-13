@@ -32,7 +32,7 @@ fun main(args: Array<String>) {
     cliParser.parse(args)
 
     val inputFile = "./slidesamples/xmlmd/Testing.xmlmd" //input.toString()
-    val outputFile = (if (output != null) output.toString() else inputFile.substringBeforeLast('.'))
+    val outputFile = (if (output != null) output.toString() else inputFile.substringBeforeLast('.')) + ".pptx"
     val templateFile = (if (template != null) template.toString() else properties.getProperty("templateFile"))
 
     println("Parsing ${inputFile} to ${outputFile} ${if (templateFile != null) "using ${templateFile}..." else ""}...")

@@ -11,9 +11,13 @@ import org.apache.poi.sl.usermodel.AutoNumberingScheme
 import org.apache.poi.sl.usermodel.TextParagraph
 import org.apache.poi.xslf.usermodel.XSLFTextParagraph
 import org.apache.poi.xslf.usermodel.XSLFTextRun
+import org.w3c.dom.NodeList
 import java.io.FileOutputStream
 import java.util.*
 import java.util.logging.Logger
+import javax.xml.xpath.XPath
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathFactory
 import com.newardassociates.pptbuilder.pptx.Slide as pptxSlide
 
 /*
@@ -105,11 +109,40 @@ class PPTXProcessor(options : Options) : Processor(options) {
         else
             SectionHeader(deck, section.title, section.quote.orEmpty() + "\n --" + section.attribution.orEmpty())
 
-        println("sh = " + sh)
+        println("sh = $sh")
     }
 
+    private val xpath: XPath = XPathFactory.newInstance().newXPath()
+    private val codeXPath = xpath.compile(".//code")
     override fun processSlide(slide : Slide) {
-        logger.info("Creating slide for ${slide}")
+        val codeNodes = codeXPath.evaluate(slide.node, XPathConstants.NODESET) as NodeList?
+        if (codeNodes != null && codeNodes.length > 0) {
+            processLegacyCodeSlide(slide)
+        }
+        else {
+            processContentSlide(slide)
+        }
+    }
+
+    fun processLegacyCodeSlide(slide : Slide) {
+        logger.info("Creating legacy code slide for $slide")
+        val currentSlide = TitleAndContent(deck, slide.title)
+
+        val childNodes = slide.node.childNodes
+        for (nidx in 0..childNodes.length - 1) {
+            val node = childNodes.item(nidx)
+            when (node.nodeName) {
+                "text" -> {
+                    logger.info("Handling text section: " + node.textContent)
+                }
+                "code" -> {
+                    logger.info("Handling code section: " + node.textContent)
+                }
+            }
+        }
+    }
+    fun processContentSlide(slide : Slide) {
+        logger.info("Creating content slide for $slide")
         val currentSlide = TitleAndContent(deck, slide.title)
         val paragraphStack : Stack<XSLFTextParagraph> = mutableListOf()
         val paragraphGeneratorStack : Stack<() -> XSLFTextParagraph> = mutableListOf()
@@ -119,6 +152,8 @@ class PPTXProcessor(options : Options) : Processor(options) {
             para.isBullet = false
             para
         }
+
+        // Process slide notes
 
         val visitor = NodeVisitor()
 
@@ -131,7 +166,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
         // Bulleted lists, bulleted list items
         visitor.addHandler(VisitHandler<BulletList>(BulletList::class.java, fun (bl : BulletList) {
             val indentLevel = paragraphGeneratorStack.size - 1
-                // -1 for the default paragraphGenerator
+            // -1 for the default paragraphGenerator
             paragraphGeneratorStack.push {
                 val para = currentSlide.content.addNewTextParagraph()
                 para.isBullet = true
@@ -196,7 +231,6 @@ class PPTXProcessor(options : Options) : Processor(options) {
 
         visitor.visit(slide.markdownBody)
     }
-
     override fun startEmphasis(em: Emphasis) {
         if (currentRun == null)
             currentRun = currentPara!!.addNewTextRun()

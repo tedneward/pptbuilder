@@ -127,9 +127,11 @@ class Parser(val properties : Properties) {
                         }
                     }
 
-                    ast.add(Slide(title, mdParser.parse(node.textContent.trimIndent()), node.textContent, notesList))
+                    ast.add(Slide(title, node, mdParser.parse(node.textContent.trimIndent()), node.textContent, notesList))
                 }
                 "section" -> {
+                    // FUTURE: Can section slides have notes?
+
                     val attrsMap = node.attributes
                     sectionTitle = attrsMap.getNamedItem("title").nodeValue
                     logger.info("Parsing section title=${sectionTitle}")

@@ -1,6 +1,7 @@
 package com.newardassociates.pptbuilder
 
 import com.vladsch.flexmark.util.ast.Document as MDDocument
+import org.w3c.dom.Node as XMLNode
 
 sealed class Node(
     val tag: Any? = null
@@ -20,6 +21,7 @@ data class Presentation(
 
 data class Slide(
     val title : String,
+    val node : XMLNode,
     val markdownBody : MDDocument,
     val rawBody : String,
     val notes : List<String>
@@ -31,4 +33,8 @@ data class Section(
         val quote: String?,
         val attribution: String?,
         val defaultSlideTitle: String = title
+) : Node()
+
+data class Import(
+        val importingPPT : String
 ) : Node()
