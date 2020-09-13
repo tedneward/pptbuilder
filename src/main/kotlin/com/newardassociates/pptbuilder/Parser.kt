@@ -133,14 +133,10 @@ class Parser(val properties : Properties) {
                     val attrsMap = node.attributes
                     sectionTitle = attrsMap.getNamedItem("title").nodeValue
                     logger.info("Parsing section title=${sectionTitle}")
-                    if (attrsMap.getNamedItem("subtitle") != null) {
-                        val sectionSubtitle = node.attributes.getNamedItem("subtitle").nodeValue
-                        ast.add(Section(sectionTitle, sectionSubtitle, null, null))
-                    } else {
-                        val sectionQuote = node.attributes.getNamedItem("quote").nodeValue
-                        val sectionAttribution = node.attributes.getNamedItem("attribution").nodeValue
-                        ast.add(Section(sectionTitle, null, sectionQuote, sectionAttribution))
-                    }
+                    val sectionSubtitle = attrsMap.getNamedItem("subtitle")?.nodeValue
+                    val sectionQuote = attrsMap.getNamedItem("quote")?.nodeValue
+                    val sectionAttribution = attrsMap.getNamedItem("attribution")?.nodeValue
+                    ast.add(Section(sectionTitle, sectionSubtitle, sectionQuote, sectionAttribution))
                 }
                 "slideset" -> {
                     logger.info("Parsing slideset")

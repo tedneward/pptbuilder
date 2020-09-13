@@ -6,8 +6,6 @@ package com.newardassociates.pptbuilder
 import kotlinx.cli.*
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.FileWriter
 import java.util.*
 
 fun main(args: Array<String>) {
@@ -15,21 +13,21 @@ fun main(args: Array<String>) {
     val propertiesFile = "${System.getProperty("user.home")}/.pptbuilder.properties"
     if (File(propertiesFile).exists())
         properties.load(FileInputStream(propertiesFile))
-    println("Using properties from ${propertiesFile}: ${properties}")
+    println("Using properties from ${propertiesFile}: $properties")
 
     val cliParser = ArgParser("pptbuilder")
     //val input by cliParser.argument(ArgType.String, description = "Input file")
     val output by cliParser.argument(ArgType.String, description = "Output file name").optional()
 
-    val outputDir by cliParser.option(ArgType.String, fullName = "outputDir", shortName = "d",
-            description = "Output directory into which to place the generated file").default("")
+    //val outputDir by cliParser.option(ArgType.String, fullName = "outputDir", shortName = "d",
+    //        description = "Output directory into which to place the generated file").default("")
     val format by cliParser.option(ArgType.Choice(listOf("pptx", "ast", "text")),
             fullName = "format", shortName = "f",
             description = "Output format to use").default("pptx")
     val template by cliParser.option(ArgType.String, fullName = "template", shortName = "t",
             description = "The processing template file to use to start from (pptx only)")
-    val debug by cliParser.option(ArgType.Boolean, fullName = "verbose", shortName = "v",
-            description="Turn on debug/verbose mode").default(false)
+    //val debug by cliParser.option(ArgType.Boolean, fullName = "verbose", shortName = "v",
+    //        description="Turn on debug/verbose mode").default(false)
 
     cliParser.parse(args)
 
@@ -43,7 +41,7 @@ fun main(args: Array<String>) {
     if (templateFile != null)
         processorOptions.templateFile = templateFile
 
-    val processor = when (format.toString()) {
+    val processor = when (format) {
         "ast" -> ASTProcessor(processorOptions)
         "nop" -> NOPProcessor(processorOptions)  // just for verifying input, don't generate output
         "text" -> TextProcessor(processorOptions)

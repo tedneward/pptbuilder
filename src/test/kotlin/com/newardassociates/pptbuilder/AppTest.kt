@@ -178,7 +178,7 @@ class AppTest {
         run3.fontFamily = "Consolas"
         run3.fontSize = 20.0
         run3.isItalic = true
-        run3.setText("Third run")
+        run3.setText("Third run");
 
         /*
         val shape = slide.createTextBox()
@@ -190,7 +190,7 @@ class AppTest {
         r1.setText("apachePOITest")
          */
 
-        val unused = {
+        {
             println("Creating code slide")
 
             val newSlide = ppt.createSlide(ppt.findLayout("Title and Content"))
@@ -211,9 +211,9 @@ class AppTest {
             run.setFontColor(Color.WHITE)
             newShape.fillColor = Color.BLACK
             run.setText("console.log('Hello world')")
-        }()
+        }();
 
-        val unused2 = {
+        {
             val slide = ppt.createSlide()
 
             val shape = slide.createTextBox()
