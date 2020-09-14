@@ -194,6 +194,10 @@ class PPTXProcessorTests {
     <slide title="Code slide">
         <text>Text section</text>
         <code language="js">console.out("Code section")</code>
+        <text>More text</text>
+        <code language="js"><![CDATA[if (x < 4) {
+  console.out("Hey this might actually work after all!");
+}]]></code>
     </slide>
 </presentation>
 """.trimIndent()
