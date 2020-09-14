@@ -102,7 +102,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
 
         // TODO: Other contact info displayed: LinkedIn, Github
 
-        deck.title = presentation.title.replace("|", "\n")
+        deck.title = presentation.title.replace("|", " ")
         deck.author = authorText
         deck.affiliation = "Copyright (c) ${Calendar.getInstance().get(Calendar.YEAR)} ${presentation.author}"
         deck.keywords = presentation.keywords.joinToString()
