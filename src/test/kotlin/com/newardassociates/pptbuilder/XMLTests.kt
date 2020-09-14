@@ -1,8 +1,10 @@
 package com.newardassociates.pptbuilder
 
+import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.xpath.XPath
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
 import kotlin.test.Test
@@ -28,5 +30,12 @@ class XMLTests {
         val xpath = XPathFactory.newInstance().newXPath()
         val nodeList = xpath.compile("/presentation/body/included").evaluate(doc, XPathConstants.NODESET)
         assertTrue((nodeList as NodeList).length > 0)
+
+        // /presentation/body is from the original document
+        val bodyNodeList = xpath.compile("/presentation/body").evaluate(doc, XPathConstants.NODE) as Node
+        println(bodyNodeList.baseURI)
+        // /presentation/body/included is from the included document
+        val includedNodeList = xpath.compile("/presentation/body/included").evaluate(doc, XPathConstants.NODE) as Node
+        println(includedNodeList.baseURI)
     }
 }

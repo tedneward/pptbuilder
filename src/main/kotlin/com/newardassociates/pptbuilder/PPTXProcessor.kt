@@ -6,16 +6,17 @@ import com.vladsch.flexmark.ast.Code
 import com.vladsch.flexmark.util.ast.NodeVisitor
 import com.vladsch.flexmark.util.ast.VisitHandler
 import org.apache.poi.sl.usermodel.AutoNumberingScheme
-import org.apache.poi.sl.usermodel.PaintStyle
 import org.apache.poi.sl.usermodel.TextParagraph
+import org.apache.poi.xslf.usermodel.XMLSlideShow
 import org.apache.poi.xslf.usermodel.XSLFTextParagraph
 import org.apache.poi.xslf.usermodel.XSLFTextRun
-import org.apache.poi.xslf.usermodel.XSLFTextShape
 import org.w3c.dom.NodeList
 import java.awt.Color
 import java.awt.geom.Rectangle2D
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.nio.file.Paths
 import java.util.*
 import java.util.logging.Logger
 import javax.xml.xpath.XPath
@@ -37,16 +38,19 @@ typealias Stack<T> = MutableList<T>
 class PPTXProcessor(options : Options) : Processor(options) {
     val logger = Logger.getLogger("PPTXProcessor")
     val deck = Deck()
-    var currentSlide: pptxSlide? = null
     var currentPara: XSLFTextParagraph? = null
     var currentRun: XSLFTextRun? = null
 
     override fun process(presentation: Presentation) {
         logger.info("Beginning PPTX processing of ${presentation.title} to ${options.outputFilename}")
+
         super.process(presentation)
 
         logger.info("Writing contents to file...")
-        deck.ppt.write(FileOutputStream(options.outputFilename))
+        if (options.outputFilename.endsWith(".pptx"))
+            deck.ppt.write(FileOutputStream(options.outputFilename))
+        else
+            deck.ppt.write(FileOutputStream(options.outputFilename + ".pptx"))
     }
 
     override fun processPresentationNode(presentation: Presentation) {
@@ -100,14 +104,15 @@ class PPTXProcessor(options : Options) : Processor(options) {
 
         deck.title = presentation.title.replace("|", "\n")
         deck.author = authorText
+        deck.affiliation = "Copyright (c) ${Calendar.getInstance().get(Calendar.YEAR)} ${presentation.author}"
         deck.keywords = presentation.keywords.joinToString()
-        deck.description = presentation.abstract.trimIndent() + "\n" +
-                "Copyright (c) ${Calendar.getInstance().get(Calendar.YEAR)} ${presentation.author}"
+        deck.subject = presentation.keywords.joinToString()
+        deck.description = presentation.abstract.trimIndent() + "\n"
     }
 
     override fun processSection(section: Section) {
         logger.info("Creating section ${section.title} slide...")
-        val sh = if (section.subtitle != null && section.subtitle.isNotBlank())
+        if (section.subtitle != null && section.subtitle.isNotBlank())
             SectionHeader(deck, section.title, section.subtitle)
         else
             SectionHeader(deck, section.title, section.quote.orEmpty() + "\n --" + section.attribution.orEmpty())
@@ -171,44 +176,45 @@ class PPTXProcessor(options : Options) : Processor(options) {
 
                     // Are we importing code from disk, or using what's inside the code tag itself?
                     if (node.hasAttributes() && node.attributes.getNamedItem("src") != null) {
-                        // Importing code from disk; find out the src and the optional marker
-                        val srcfile = node.attributes.getNamedItem("src").textContent
-                        val marker = node.attributes.getNamedItem("marker")?.textContent
-                        logger.info("Pulling code from $srcfile at $marker")
+                        logger.info("node: ${node}")
 
-                        val file = File(srcfile)
-                        logger.info("file: ${file.absoluteFile} : ${file.isFile}")
-                        val text = mutableListOf<String>()
-                        if (marker == null) {
-                            logger.info("No marker; grabbing the entire file")
-                            file.forEachLine { text.add(it) }
+                        // Importing code from disk; find out the src and the optional marker
+                        val srcfile = if (node.baseURI != null) {
+                            val path = Paths.get(node.baseURI.substringAfter("file:/"))
+                            path.parent.resolve(node.attributes.getNamedItem("src").textContent).toString()
                         }
                         else {
-                            logger.info("Scanning for marker ${marker}")
+                            node.attributes.getNamedItem("src").textContent
+                        }
+                        val marker = node.attributes.getNamedItem("marker")?.textContent
+                        val file = File(srcfile)
+                        logger.info("Pulling code from ${srcfile} at $marker")
+
+                        val text = mutableListOf<String>()
+                        if (marker == null) {
+                            file.forEachLine { text.add(it) }
+                        } else {
                             var capturing = false
                             file.forEachLine {
                                 if (it.contains("{{## END " + marker + " ##}}"))
                                     capturing = false
                                 if (capturing)
-                                    text.add(it)
+                                    text.add(if (it == "") "    " else it)
                                 if (it.contains("{{## BEGIN " + marker + " ##}}"))
                                     capturing = true
                             }
                         }
-
-                        logger.info("Imported code: $text")
-
                         val setText = text.joinToString("\n")
+                        logger.info("Writing out $setText into code block from $text")
+
                         run.setText(setText)
-                    }
-                    else {
+                    } else {
                         // Using what's inside the code tag itself
                         run.setText(node.textContent)
                     }
 
                     newShape.resizeToFitText()
-
-                    currentAnchor.y += newShape.anchor.height
+                    currentAnchor.y += newShape.anchor.height + 5.0
                 }
             }
         }
@@ -260,7 +266,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
             paragraphGeneratorStack.push {
                 logger.info("Ordered List! indent level ${indentLevel}")
                 val para = currentSlide.content.addNewTextParagraph()
-                para.isBullet = true
+                para.isBullet = true //if (ol.delimiter == '*') true else false  // TEST TEST TEST
                 para.indentLevel = indentLevel
                 para.setBulletAutoNumber(AutoNumberingScheme.arabicPeriod, 1)
                 para
