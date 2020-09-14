@@ -130,6 +130,7 @@ dmypy.json
 
 # Ignore Gradle project-specific cache directory
 .gradle
+.idea/gradle.xml
 
 # Ignore Gradle build output directory
 build

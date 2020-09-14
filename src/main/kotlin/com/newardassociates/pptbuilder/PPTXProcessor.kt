@@ -14,6 +14,7 @@ import org.apache.poi.xslf.usermodel.XSLFTextShape
 import org.w3c.dom.NodeList
 import java.awt.Color
 import java.awt.geom.Rectangle2D
+import java.io.File
 import java.io.FileOutputStream
 import java.util.*
 import java.util.logging.Logger
@@ -151,7 +152,6 @@ class PPTXProcessor(options : Options) : Processor(options) {
                     newShape.resizeToFitText()
 
                     currentAnchor.y += newShape.anchor.height
-                    println("currentAnchor = $currentAnchor")
                 }
                 "code" -> {
                     logger.info("Handling code section: " + node.textContent)
@@ -168,11 +168,47 @@ class PPTXProcessor(options : Options) : Processor(options) {
                     run.fontSize = 14.0
                     run.setFontColor(Color.WHITE)
                     newShape.fillColor = Color.BLACK
-                    run.setText(node.textContent)
+
+                    // Are we importing code from disk, or using what's inside the code tag itself?
+                    if (node.hasAttributes() && node.attributes.getNamedItem("src") != null) {
+                        // Importing code from disk; find out the src and the optional marker
+                        val srcfile = node.attributes.getNamedItem("src").textContent
+                        val marker = node.attributes.getNamedItem("marker")?.textContent
+                        logger.info("Pulling code from $srcfile at $marker")
+
+                        val file = File(srcfile)
+                        logger.info("file: ${file.absoluteFile} : ${file.isFile}")
+                        val text = mutableListOf<String>()
+                        if (marker == null) {
+                            logger.info("No marker; grabbing the entire file")
+                            file.forEachLine { text.add(it) }
+                        }
+                        else {
+                            logger.info("Scanning for marker ${marker}")
+                            var capturing = false
+                            file.forEachLine {
+                                if (it.contains("{{## END " + marker + " ##}}"))
+                                    capturing = false
+                                if (capturing)
+                                    text.add(it)
+                                if (it.contains("{{## BEGIN " + marker + " ##}}"))
+                                    capturing = true
+                            }
+                        }
+
+                        logger.info("Imported code: $text")
+
+                        val setText = text.joinToString("\n")
+                        run.setText(setText)
+                    }
+                    else {
+                        // Using what's inside the code tag itself
+                        run.setText(node.textContent)
+                    }
+
                     newShape.resizeToFitText()
 
                     currentAnchor.y += newShape.anchor.height
-                    println("currentAnchor = $currentAnchor")
                 }
             }
         }

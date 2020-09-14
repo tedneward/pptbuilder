@@ -198,6 +198,10 @@ class PPTXProcessorTests {
         <code language="js"><![CDATA[if (x < 4) {
   console.out("Hey this might actually work after all!");
 }]]></code>
+        <text>Imported code</text>
+        <code language="js" src="./slidesamples/xmlmd/Content/code/console.js" />
+        <text>Marked code</text>
+        <code language="js" src="./slidesamples/xmlmd/Content/code/markedconsole.js" marker="console" />
     </slide>
 </presentation>
 """.trimIndent()
