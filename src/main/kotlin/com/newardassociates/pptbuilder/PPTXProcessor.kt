@@ -1,17 +1,19 @@
 package com.newardassociates.pptbuilder
 
-import com.newardassociates.pptbuilder.pptx.Deck
-import com.newardassociates.pptbuilder.pptx.SectionHeader
-import com.newardassociates.pptbuilder.pptx.Title
-import com.newardassociates.pptbuilder.pptx.TitleAndContent
+import com.newardassociates.pptbuilder.pptx.*
 import com.vladsch.flexmark.ast.*
+import com.vladsch.flexmark.ast.Code
 import com.vladsch.flexmark.util.ast.NodeVisitor
 import com.vladsch.flexmark.util.ast.VisitHandler
 import org.apache.poi.sl.usermodel.AutoNumberingScheme
+import org.apache.poi.sl.usermodel.PaintStyle
 import org.apache.poi.sl.usermodel.TextParagraph
 import org.apache.poi.xslf.usermodel.XSLFTextParagraph
 import org.apache.poi.xslf.usermodel.XSLFTextRun
+import org.apache.poi.xslf.usermodel.XSLFTextShape
 import org.w3c.dom.NodeList
+import java.awt.Color
+import java.awt.geom.Rectangle2D
 import java.io.FileOutputStream
 import java.util.*
 import java.util.logging.Logger
@@ -108,8 +110,6 @@ class PPTXProcessor(options : Options) : Processor(options) {
             SectionHeader(deck, section.title, section.subtitle)
         else
             SectionHeader(deck, section.title, section.quote.orEmpty() + "\n --" + section.attribution.orEmpty())
-
-        println("sh = $sh")
     }
 
     private val xpath: XPath = XPathFactory.newInstance().newXPath()
@@ -126,7 +126,12 @@ class PPTXProcessor(options : Options) : Processor(options) {
 
     fun processLegacyCodeSlide(slide : Slide) {
         logger.info("Creating legacy code slide for $slide")
-        val currentSlide = TitleAndContent(deck, slide.title)
+        val currentSlide = TitleOnly(deck, slide.title)
+
+        logger.info("Title anchor: ${currentSlide.title.anchor}")
+        val titleAnchor = currentSlide.title.anchor
+        val currentAnchor = Rectangle2D.Double(titleAnchor.x, titleAnchor.y + titleAnchor.height, titleAnchor.width, 0.0)
+        println("currentAnchor = $currentAnchor")
 
         val childNodes = slide.node.childNodes
         for (nidx in 0..childNodes.length - 1) {
@@ -134,9 +139,40 @@ class PPTXProcessor(options : Options) : Processor(options) {
             when (node.nodeName) {
                 "text" -> {
                     logger.info("Handling text section: " + node.textContent)
+
+                    val newShape = currentSlide.slide.createTextBox()
+                    newShape.anchor = Rectangle2D.Double(currentAnchor.x, currentAnchor.y, currentAnchor.width, 0.0)
+                    newShape.clearText()
+
+                    val paragraph = newShape.addNewTextParagraph()
+                    paragraph.fontAlign = TextParagraph.FontAlign.TOP
+                    val run = paragraph.addNewTextRun()
+                    run.setText(node.textContent)
+                    newShape.resizeToFitText()
+
+                    currentAnchor.y += newShape.anchor.height
+                    println("currentAnchor = $currentAnchor")
                 }
                 "code" -> {
                     logger.info("Handling code section: " + node.textContent)
+
+                    val newShape = currentSlide.slide.createTextBox()
+                    newShape.anchor = Rectangle2D.Double(currentAnchor.x, currentAnchor.y, currentAnchor.width, 0.0)
+                    newShape.clearText()
+
+                    val paragraph = newShape.addNewTextParagraph()
+                    paragraph.setBulletStyle() // omit bullets
+                    paragraph.fontAlign = TextParagraph.FontAlign.TOP
+                    val run = paragraph.addNewTextRun()
+                    run.fontFamily = "Consolas"
+                    run.fontSize = 14.0
+                    run.setFontColor(Color.WHITE)
+                    newShape.fillColor = Color.BLACK
+                    run.setText(node.textContent)
+                    newShape.resizeToFitText()
+
+                    currentAnchor.y += newShape.anchor.height
+                    println("currentAnchor = $currentAnchor")
                 }
             }
         }
