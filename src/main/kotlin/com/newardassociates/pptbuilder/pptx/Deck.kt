@@ -1,10 +1,14 @@
 package com.newardassociates.pptbuilder.pptx
 
+import com.newardassociates.pptbuilder.Processor
 import org.apache.poi.xslf.usermodel.SlideLayout
 import org.apache.poi.xslf.usermodel.XMLSlideShow
 import org.apache.poi.xslf.usermodel.XSLFSlideLayout
+import java.util.logging.Logger
 
 class Deck(val ppt: XMLSlideShow) {
+    private val logger = Logger.getLogger(Deck::class.java.canonicalName)
+
     constructor() : this(XMLSlideShow()) {}
 
     lateinit var titleLayout: XSLFSlideLayout
@@ -14,8 +18,11 @@ class Deck(val ppt: XMLSlideShow) {
     lateinit var blankLayout: XSLFSlideLayout
 
     init {
+        logger.fine("Iterating through layouts in ${ppt}")
         for (master in ppt.slideMasters) {
+            logger.fine("Iterating through layouts in ${master}")
             for (layout in master.slideLayouts) {
+                logger.fine("Found ${layout.name}")
                 when (layout.type) {
                     SlideLayout.TITLE -> titleLayout = layout
                     SlideLayout.SECTION_HEADER -> sectionHeaderLayout = layout
@@ -23,6 +30,7 @@ class Deck(val ppt: XMLSlideShow) {
                     SlideLayout.TITLE_ONLY -> titleOnlyLayout = layout
                     SlideLayout.BLANK -> blankLayout = layout
                     else -> {
+                        logger.fine("... unrecognized layout: ${layout.name}")
                     }
                 }
             }
@@ -36,6 +44,7 @@ class Deck(val ppt: XMLSlideShow) {
             return properties.coreProperties.title
         }
         set(value) {
+            logger.fine("Setting title property to $value")
             properties.coreProperties.title = value; properties.commit()
         }
 
@@ -44,6 +53,7 @@ class Deck(val ppt: XMLSlideShow) {
             return properties.coreProperties.subject
         }
         set(value) {
+            logger.fine("Setting subject property to $value")
             properties.coreProperties.setSubjectProperty(value); properties.commit()
         }
 
@@ -52,6 +62,7 @@ class Deck(val ppt: XMLSlideShow) {
             return properties.coreProperties.creator
         }
         set(value) {
+            logger.fine("Setting author property to $value")
             properties.coreProperties.creator = value; properties.commit()
         }
 
@@ -60,6 +71,7 @@ class Deck(val ppt: XMLSlideShow) {
             return properties.extendedProperties.company
         }
         set(value) {
+            logger.fine("Setting affiliation property to $value")
             properties.extendedProperties.company = value; properties.commit()
         }
 
@@ -68,6 +80,7 @@ class Deck(val ppt: XMLSlideShow) {
             return properties.extendedProperties.manager
         }
         set(value) {
+            logger.fine("Setting manager property to $value")
             properties.extendedProperties.manager = value; properties.commit()
         }
 
@@ -76,6 +89,7 @@ class Deck(val ppt: XMLSlideShow) {
             return properties.coreProperties.description
         }
         set(value) {
+            logger.fine("Setting description property to $value")
             properties.coreProperties.description = value; properties.commit()
         }
 
@@ -84,6 +98,7 @@ class Deck(val ppt: XMLSlideShow) {
             return properties.coreProperties.category
         }
         set(value) {
+            logger.fine("Setting category property to $value")
             properties.coreProperties.category = value; properties.commit()
         }
 
@@ -92,6 +107,7 @@ class Deck(val ppt: XMLSlideShow) {
             return properties.coreProperties.keywords
         }
         set(value) {
+            logger.fine("Setting keywords property to $value")
             properties.coreProperties.keywords = value; properties.commit()
         }
 }

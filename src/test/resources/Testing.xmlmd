@@ -9,8 +9,8 @@
         <!-- author section optional; defaults to what's in .pptbuilderprefs in home directory -->
         <author>
             <name>Ted Neward</name>
-            <!-- title>Director, Tech Culture</title>
-            <affiliation>Quicken Loans</affiliation-->
+            <title>Director, Tech Culture</title>
+            <affiliation>Quicken Loans</affiliation>
             <contact>
                 <email>ted@tedneward.com</email>
                 <twitter>tedneward</twitter>
@@ -25,11 +25,10 @@
         <category>Presentation</category>
     </head>
 
-    <!-- xi:include href="Content/credentials.xmlmd" / -->
+    <xi:include href="Content/credentials.xmlmd" />
 
-    <!-- xi:include href="Content/section.xmlmd" / -->
+    <xi:include href="Content/section.xmlmd" />
 
-    <section title="Sample presentation" />
     <slide>
         <notes>These are some notes to go with this slide. Let's see if they make it all the way through.</notes>
         * First
@@ -41,16 +40,16 @@
         <notes>This is a second set of notes, which should be OK.</notes>
     </slide>
     <slide>
+        # Header
+
         * No special characters
         * This *emphasized* bullet point
         * This **strongly emphasized** second bullet point
         * This `code` point
     </slide>
-    <!--
     <slide>
         Let's do some non-bulleted text and see what happens.
     </slide>
-    -->
 
     <!--
     <slide>

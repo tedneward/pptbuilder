@@ -40,21 +40,17 @@ typealias Stack<T> = MutableList<T>
 // Things to do:
 // -- start from or associate to PPTX template
 class PPTXProcessor(options : Options) : Processor(options) {
-    val logger = Logger.getLogger("PPTXProcessor")
-    val deck = Deck()
-    var currentPara: XSLFTextParagraph? = null
-    var currentRun: XSLFTextRun? = null
+    private val logger = Logger.getLogger(PPTXProcessor::class.java.canonicalName)
+    private val deck = Deck(if (options.templateFile != "") XMLSlideShow(FileInputStream(options.templateFile)) else XMLSlideShow())
 
     override fun process(presentation: Presentation) {
         logger.info("Beginning PPTX processing of ${presentation.title} to ${options.outputFilename}")
 
         super.process(presentation)
 
-        logger.info("Writing contents to file...")
-        if (options.outputFilename.endsWith(".pptx"))
-            deck.ppt.write(FileOutputStream(options.outputFilename))
-        else
-            deck.ppt.write(FileOutputStream(options.outputFilename + ".pptx"))
+        val outputFilename = options.outputFilename + (if (options.outputFilename.endsWith(".pptx")) "" else ".pptx")
+        logger.info("Writing contents to ${outputFilename}...")
+        deck.ppt.write(FileOutputStream(outputFilename))
     }
 
     override fun processPresentationNode(presentation: Presentation) {
@@ -153,48 +149,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
                 }
                 "code" -> {
                     logger.info("Handling code section: " + node.textContent)
-
-                    // Are we importing code from disk, or using what's inside the code tag itself?
-                    val code = if (node.hasAttributes() && node.attributes.getNamedItem("src") != null) {
-                        // Importing code from disk; find out the src and the optional marker
-
-                        // If this file was xinclude'd, then the relative location of the src file
-                        // won't be to correct; grab the baseURI of the xinclude'd document to use
-                        // that as a starting point for finding the file in question
-                        val src = node.attributes.getNamedItem("src").textContent
-                        val srcfile = if (node.baseURI != null) {
-                            Paths.get(URI.create(node.baseURI)).parent.resolve(src).toFile()
-                        } else {
-                            File(src)
-                        }
-                        val marker = node.attributes.getNamedItem("marker")?.textContent
-                        logger.info("Pulling code from ${srcfile} at $marker")
-
-                        assert(srcfile.exists())
-                        assert(srcfile.isFile)
-
-                        val text = mutableListOf<String>()
-                        if (marker == null) {
-                            srcfile.forEachLine { text.add(it) }
-                        } else {
-                            var capturing = false
-                            srcfile.forEachLine {
-                                if (it.contains("{{## END $marker ##}}"))
-                                    capturing = false
-                                if (capturing)
-                                    text.add(if (it == "") "    " else it)
-                                if (it.contains("{{## BEGIN $marker ##}}"))
-                                    capturing = true
-                            }
-                        }
-                        logger.info("Writing out $text into code block")
-                        text.joinToString("\n")
-                    } else {
-                        // Using what's inside the code tag itself
-                        node.textContent
-                    }
-
-                    currentSlide.addCodeBlock(code)
+                    currentSlide.addCodeBlock(importCode(node))
                 }
             }
         }

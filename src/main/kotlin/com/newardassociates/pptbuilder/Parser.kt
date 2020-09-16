@@ -55,7 +55,7 @@ class Parser(val properties : Properties) {
 
     private fun parse(doc: XMLDocument): Presentation {
         check(doc.documentElement.tagName == "presentation")
-        logger.info("Parsing Document instance w/root element ${doc.documentElement.tagName}")
+        logger.fine("Parsing Document instance w/root element ${doc.documentElement.tagName}")
 
         // Talk-specific bits
         val title = titleXPath.evaluate(doc, XPathConstants.STRING).toString()
@@ -86,7 +86,7 @@ class Parser(val properties : Properties) {
 
         val affiliation = getXMLOrPropertiesValue(affiliationXPath, "affiliation")
         val jobTitle = getXMLOrPropertiesValue(jobTitleXPath, "jobTitle")
-        logger.info("Author bits: ${author}|${affiliation}|${jobTitle}")
+        logger.info("Author info: ${author} | ${affiliation} | ${jobTitle}")
 
         val contactInfo = mutableMapOf<String, String>()
         contactInfo["email"] = getXMLOrPropertiesValue(emailXPath, "contact.email")
@@ -111,7 +111,9 @@ class Parser(val properties : Properties) {
             val node = nodes.item(i)
 
             when (node.nodeName) {
-                // At some point, make "title" optional and default to current "section" title
+                "head" -> {
+                    logger.fine("Ignoring <head>, since it gets processed elsewhere")
+                }
                 "slide" -> {
                     val titleNode = node.attributes.getNamedItem("title")
                     val title = if (titleNode != null) titleNode.nodeValue else sectionTitle
@@ -145,8 +147,7 @@ class Parser(val properties : Properties) {
                     ast.addAll(parseNodes(node.childNodes))
                     logger.info("End slideset")
                 }
-                // "head" gets ignored
-                //else -> print("Ignoring ${node.nodeName}")
+                else -> logger.fine("Unrecognized node: ${node.nodeName}")
             }
         }
         return ast

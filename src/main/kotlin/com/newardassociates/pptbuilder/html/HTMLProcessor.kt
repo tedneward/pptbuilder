@@ -1,6 +1,9 @@
-package com.newardassociates.pptbuilder
+package com.newardassociates.pptbuilder.html
 
-import com.vladsch.flexmark.ast.*
+import com.newardassociates.pptbuilder.Presentation
+import com.newardassociates.pptbuilder.Processor
+import com.newardassociates.pptbuilder.Section
+import com.newardassociates.pptbuilder.Slide
 
 class HTMLProcessor(options: Options) : Processor(options) {
     var tabCount = 0

@@ -1,6 +1,6 @@
 <slideset>
 
-    <section title="Sample section" />
+    <section title="Sample section" subtitle="" />
     <slide title="A sample slide">
         # Hello to the world
 

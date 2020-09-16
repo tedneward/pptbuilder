@@ -3,11 +3,17 @@
  */
 package com.newardassociates.pptbuilder
 
+import com.newardassociates.pptbuilder.html.HTMLProcessor
+import com.newardassociates.pptbuilder.nop.NOPProcessor
 import com.newardassociates.pptbuilder.pptx.PPTXProcessor
+import com.newardassociates.pptbuilder.text.TextProcessor
 import kotlinx.cli.*
 import java.io.File
 import java.io.FileInputStream
 import java.util.*
+import java.util.logging.LogManager
+import java.util.logging.Logger
+import java.util.logging.Level
 
 fun main(args: Array<String>) {
     println("pptbuilder v0.9")
@@ -20,13 +26,13 @@ fun main(args: Array<String>) {
     val baseDirectory by cliParser.option(ArgType.String,
             fullName = "workingDir", shortName = "wd",
             description = "Working directory").default("")
-    val outputDir by cliParser.option(ArgType.String, fullName = "outputDir", shortName = "d",
+    val outputDirectory by cliParser.option(ArgType.String, fullName = "outputDir", shortName = "d",
             description = "Output directory into which to place the generated file").default("")
 
-    val verbosity by cliParser.option(ArgType.Choice(listOf("quiet", "info", "debug")),
+    val verbosity by cliParser.option(ArgType.Choice(listOf("quiet", "warning", "info", "debug")),
             fullName = "verbosity", shortName = "v",
-            description = "How much logging to display").default("info")
-    val format by cliParser.option(ArgType.Choice(listOf("pptx")),
+            description = "How much logging to display").default("warning")
+    val format by cliParser.option(ArgType.Choice(listOf("pptx", "nop")),
             fullName = "format", shortName = "f",
             description = "Output format to use").default("pptx")
     val template by cliParser.option(ArgType.String,
@@ -35,30 +41,55 @@ fun main(args: Array<String>) {
 
     cliParser.parse(args)
 
+    // Configure LogManager according to verbosity flag
+    Logger.getLogger(::main.javaClass.packageName).level = when (verbosity) {
+        "quiet" -> Level.SEVERE
+        "info" -> Level.INFO
+        "debug" -> Level.FINEST
+        else -> Level.WARNING
+    }
+
+    // Grab default properties from .pptbuilder.properties
     val properties = Properties()
     val propertiesFile = "${System.getProperty("user.home")}/.pptbuilder.properties"
     if (File(propertiesFile).exists())
         properties.load(FileInputStream(propertiesFile))
-    println("Using properties from ${propertiesFile}: $properties")
+    println("... using properties from ${propertiesFile}: $properties")
 
-    val outputFile = (if (output != null) output.toString() else input.toString().substringBeforeLast('.'))
-    //val templateFile = (if (template != null) template.toString() else properties.getProperty("templateFile"))
+    // Design thought:
+    // Does it make more sense to import the CLI args into the properties, and then
+    // pull the values out of there, rather than what I'm doing here?
 
-    println("Parsing ${input.toString()} to ${outputFile}...")
-    //println("Parsing ${input.toString()} to ${outputFile} ${if (templateFile != null) "using ${templateFile}..." else ""}...")
+    val inputPath = File(input).path
+    val inputFile = File(input).name
 
-    val processorOptions = Processor.Options(outputFilename = outputFile);
-    //if (templateFile != null)
-    //    processorOptions.templateFile = templateFile
+    val outputPath = if (outputDirectory != "") outputDirectory + "/" else "./"
+    val outputFile = if (output != null) output else inputFile.substringBeforeLast(".")
+
+    println("... parsing ${inputPath}/${inputFile} to ${outputPath}${outputFile}${if (template != null) " using ${template}..." else ""}...")
+
+    /*
+        val outputFilename : String = "",
+        val templateFile : String = "",
+        val baseDirectory : String = "",
+        val noTitleSlide : Boolean = false,
+        val noNotesSlides : Boolean = false
+     */
+    val processorOptions = Processor.Options(
+            outputFilename = outputPath + outputFile,
+            templateFile = (if (template != null) template.toString() else (properties.getProperty("templateFile") ?: "")),
+            baseDirectory = baseDirectory.toString()
+    );
 
     val processor = when (format) {
-        //"ast" -> ASTProcessor(processorOptions)
-        //"nop" -> NOPProcessor(processorOptions)  // just for verifying input, don't generate output
-        //"text" -> TextProcessor(processorOptions)
         "pptx" -> PPTXProcessor(processorOptions)
+        //"ast" -> ASTProcessor(processorOptions)
+        "nop" -> NOPProcessor(processorOptions)  // just for verifying input, don't generate output
+        "text" -> TextProcessor(processorOptions)
+        "html" -> HTMLProcessor(processorOptions)
         else -> throw IllegalArgumentException("Unrecognized format: " + format.toString())
     }
     val parser = Parser(properties)
 
-    processor.process(parser.parse(File(input.toString())))
+    processor.process(parser.parse(File(input)))
 }
