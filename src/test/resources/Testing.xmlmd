@@ -7,6 +7,7 @@
             This is the second paragraph for an abstract.
         </abstract>
         <!-- author section optional; defaults to what's in .pptbuilderprefs in home directory -->
+        <!--
         <author>
             <name>Ted Neward</name>
             <title>Director, Tech Culture</title>
@@ -14,12 +15,11 @@
             <contact>
                 <email>ted@tedneward.com</email>
                 <twitter>tedneward</twitter>
-        <!--
                 <linkedIn>tedneward</linkedIn>
                 <blog>http://blogs.newardassociates.com</blog>
-        -->
             </contact>
         </author>
+        -->
         <audience>For any intermediate Java (2 or more years) audience</audience>
         <category>Testing</category>
         <category>Presentation</category>

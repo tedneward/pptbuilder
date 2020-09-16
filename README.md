@@ -47,12 +47,15 @@ Github URLs look like: https://github.com/tedneward
 ```
 #PPTBuilder
 #Fri Jun 12 02:55:15 PDT 2020
-contact.blog=http\://blogs.tedneward.com
-affiliation=Neward & Associates
 author=Ted Neward
+affiliation=Neward & Associates
+jobTitle=Principal
+
+contact.blog=http\://blogs.tedneward.com
 contact.email=ted@tedneward.com
 contact.github=tedneward
-contact.twitter=@tedneward
 contact.linkedin=tedneward
-#templateFile=/Users/tedneward/Projects/Presentations/Templates/__Template.ppt
+contact.twitter=@tedneward
+
+#template=/Users/tedneward/Projects/Presentations/Templates/__Template.ppt
 ```

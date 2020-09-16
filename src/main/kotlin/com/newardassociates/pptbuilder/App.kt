@@ -37,7 +37,7 @@ fun main(args: Array<String>) {
             description = "Output format to use").default("pptx")
     val template by cliParser.option(ArgType.String,
             fullName = "template", shortName = "t",
-            description = "The processing template file to use to start from (pptx only)")
+            description = "The processing template file to use to start from (pptx only)").default("")
 
     cliParser.parse(args)
 
@@ -63,10 +63,12 @@ fun main(args: Array<String>) {
     val inputPath = File(input).path
     val inputFile = File(input).name
 
-    val outputPath = if (outputDirectory != "") outputDirectory + "/" else "./"
+    val outputPath = if (outputDirectory != "") outputDirectory else (properties["outputPath"] ?: ".").toString() + "/"
     val outputFile = if (output != null) output else inputFile.substringBeforeLast(".")
 
-    println("... parsing ${inputPath}/${inputFile} to ${outputPath}${outputFile}${if (template != null) " using ${template}..." else ""}...")
+    val templateFile = (if (template != "") template else (properties["template"] ?: "")).toString()
+
+    println("... parsing ${inputPath}/${inputFile} to ${outputPath}${outputFile}${if (templateFile != "") " using ${templateFile}..." else ""}...")
 
     /*
         val outputFilename : String = "",
@@ -77,19 +79,17 @@ fun main(args: Array<String>) {
      */
     val processorOptions = Processor.Options(
             outputFilename = outputPath + outputFile,
-            templateFile = (if (template != null) template.toString() else (properties.getProperty("templateFile") ?: "")),
+            templateFile = templateFile,
             baseDirectory = baseDirectory.toString()
     );
 
-    val processor = when (format) {
+    // It's just too much fun to NOT do all of this in one compound expression
+    (when (format) {
         "pptx" -> PPTXProcessor(processorOptions)
         //"ast" -> ASTProcessor(processorOptions)
         "nop" -> NOPProcessor(processorOptions)  // just for verifying input, don't generate output
         "text" -> TextProcessor(processorOptions)
         "html" -> HTMLProcessor(processorOptions)
         else -> throw IllegalArgumentException("Unrecognized format: " + format.toString())
-    }
-    val parser = Parser(properties)
-
-    processor.process(parser.parse(File(input)))
+    }).process(Parser(properties).parse(File(input)))
 }

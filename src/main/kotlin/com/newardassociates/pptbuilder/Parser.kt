@@ -72,18 +72,29 @@ class Parser(val properties : Properties) {
             }
         }
 
-        // Author-specific bits
-        var author = authorXPath.evaluate(doc, XPathConstants.STRING).toString()
-        author = if (author == "") (properties["author"].toString()) else author
-
         fun getXMLOrPropertiesValue(xPath: XPathExpression, propName: String): String {
-            if (xPath.evaluate(doc, XPathConstants.STRING) != null)
-                return xPath.evaluate(doc, XPathConstants.STRING).toString()
-            else if (properties[propName] != null)
-                return properties[propName].toString()
-            return ""
+            logger.fine("Examining XPath ${xPath} and property ${propName}...")
+
+            val xres = xPath.evaluate(doc, XPathConstants.STRING).toString()
+            logger.fine("XPath gives us '$xres'")
+            if (xres == "") {
+                val prop = properties[propName]
+                logger.fine("Properties gives us '$prop'")
+                if (prop == null) {
+                    logger.fine("Nothing!")
+                    return ""
+                }
+                else {
+                    return prop.toString()
+                }
+            }
+            else {
+                return xres
+            }
         }
 
+        // Author-specific bits
+        val author = getXMLOrPropertiesValue(authorXPath, "author")
         val affiliation = getXMLOrPropertiesValue(affiliationXPath, "affiliation")
         val jobTitle = getXMLOrPropertiesValue(jobTitleXPath, "jobTitle")
         logger.info("Author info: ${author} | ${affiliation} | ${jobTitle}")
