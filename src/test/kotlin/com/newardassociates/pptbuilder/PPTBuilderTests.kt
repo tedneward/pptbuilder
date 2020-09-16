@@ -16,7 +16,7 @@ class PPTBuilderTests {
 
     @Test
     fun writeTitleAndContentSlide() {
-        val tc = TitleAndContent(deck, "Title Slide")
+        val tc = TitleAndContentSlide(deck, "Title Slide")
         tc.content.text = "Content text"
 
         deck.ppt.write(FileOutputStream(outPath + "writeTitleAndContentSlide.pptx"))
@@ -24,14 +24,14 @@ class PPTBuilderTests {
 
     @Test
     fun writeTitleOnlySlide() {
-        val tc = TitleOnly(deck, "Title")
+        val tc = TitleOnlySlide(deck, "Title")
 
         deck.ppt.write(FileOutputStream(outPath + "writeTitleOnlySlide.pptx"))
     }
 
     @Test
     fun writeTitleSlide() {
-        val ts = Title(deck, "Title Slide Text", "Subtitle Text")
+        val ts = TitleSlide(deck, "Title Slide Text", "Subtitle Text")
 
         println(ts)
 
@@ -40,7 +40,7 @@ class PPTBuilderTests {
 
     @Test
     fun writeSectionSlide() {
-        SectionHeader(deck, "Title Slide Text", "Subtitle Text")
+        SectionHeaderSlide(deck, "Title Slide Text", "Subtitle Text")
         deck.ppt.write(FileOutputStream(outPath + "writeSectionSlide.pptx"))
     }
 
@@ -58,10 +58,10 @@ class PPTBuilderTests {
 
     @Test
     fun writeNotesInSlides() {
-        val ts = Title(deck, "Title Slide Text", "Subtitle Text")
+        val ts = TitleSlide(deck, "Title Slide Text", "Subtitle Text")
         ts.notes = "These are some notes to go along with the slide"
 
-        val tc = TitleAndContent(deck, "Title Slide")
+        val tc = TitleAndContentSlide(deck, "Title Slide")
         tc.content.text = "Content text"
         tc.notes = "These are some more notes to go along with the slide"
 
@@ -70,7 +70,7 @@ class PPTBuilderTests {
 
     @Test
     fun writeHeader() {
-        val ts = TitleAndContent(deck, "Title Slide Text")
+        val ts = TitleAndContentSlide(deck, "Title Slide Text")
         ts.header("Important stuff!")
 
         deck.ppt.write(FileOutputStream(outPath + "writeHeader.pptx"))
@@ -78,7 +78,7 @@ class PPTBuilderTests {
 
     @Test
     fun writeHeaderAndOneLevelBulletList() {
-        val ts = TitleAndContent(deck, "Title Slide Text")
+        val ts = TitleAndContentSlide(deck, "Title Slide Text")
         ts.header("Important stuff!")
 
         ts.newList()
@@ -92,7 +92,7 @@ class PPTBuilderTests {
 
     @Test
     fun writeHeaderAndFourLevelsBulletList() {
-        val ts = TitleAndContent(deck, "Title Slide Text")
+        val ts = TitleAndContentSlide(deck, "Title Slide Text")
         ts.header("Important stuff!")
 
         ts.newList()
@@ -116,7 +116,7 @@ class PPTBuilderTests {
 
     @Test
     fun writeHeaderWithBulletRuns() {
-        val ts = TitleAndContent(deck, "Title Slide Text")
+        val ts = TitleAndContentSlide(deck, "Title Slide Text")
         ts.header("Important stuff!")
 
         ts.newList()

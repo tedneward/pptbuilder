@@ -1,5 +1,7 @@
 package com.newardassociates.pptbuilder
 
+import com.newardassociates.pptbuilder.pptx.PPTXProcessor
+import java.io.File
 import java.util.*
 import kotlin.test.Test
 
@@ -171,7 +173,7 @@ class PPTXProcessorTests {
     @Test
     fun pptxLegacyCode() {
         val xmlmd = """
-<presentation>
+<presentation xmlns:xi="http://www.w3.org/2001/XInclude">
     <head>
         <title>Busy Developer's Guide to|pptxLegacyCode</title>
         <abstract>None</abstract>
@@ -199,13 +201,19 @@ class PPTXProcessorTests {
   console.out("Hey this might actually work after all!");
 }]]></code>
         <text>Imported code</text>
-        <code language="js" src="./slidesamples/xmlmd/Content/code/console.js" />
+        <code language="js" src="src/test/resources/Content/code/console.js" />
         <text>Marked code</text>
-        <code language="js" src="./slidesamples/xmlmd/Content/code/markedconsole.js" marker="console" />
+        <code language="js" src="src/test/resources/Content/code/markedconsole.js" marker="console" />
     </slide>
 </presentation>
 """.trimIndent()
 
         PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxLegacyCode.pptx")).process(Parser(Properties()).parse(xmlmd))
+    }
+
+    @Test
+    fun pptxLegacyXIncludedCode() {
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxLegacyXIncludedCode.pptx", baseDirectory = "src/test/resources/Content"))
+                .process(Parser(Properties()).parse(File("src/test/resources/pptxLegacyXIncludedCode.xmlmd")))
     }
 }

@@ -1,8 +1,6 @@
 package com.newardassociates.pptbuilder
 
-import com.vladsch.flexmark.ast.*
-
-class HTMLProcessor(options: Options) : Processor(options) {
+class TextProcessor(options: Options) : Processor(options) {
     var tabCount = 0
     fun tabs() : String {
         var ret = ""
@@ -12,11 +10,14 @@ class HTMLProcessor(options: Options) : Processor(options) {
     }
 
     override fun processPresentationNode(presentation: Presentation) {
+        println("Presentation: ${presentation.title}")
     }
 
     override fun processSection(section: Section) {
+        println("Section: ${section.title}")
     }
 
     override fun processSlide(slide: Slide) {
+        println("Slide: ${slide.title}")
     }
 }

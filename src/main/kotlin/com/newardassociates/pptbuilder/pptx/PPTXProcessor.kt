@@ -1,5 +1,9 @@
-package com.newardassociates.pptbuilder
+package com.newardassociates.pptbuilder.pptx
 
+import com.newardassociates.pptbuilder.Presentation
+import com.newardassociates.pptbuilder.Processor
+import com.newardassociates.pptbuilder.Section
+import com.newardassociates.pptbuilder.Slide
 import com.newardassociates.pptbuilder.pptx.*
 import com.vladsch.flexmark.ast.*
 import com.vladsch.flexmark.ast.Code
@@ -16,6 +20,7 @@ import java.awt.geom.Rectangle2D
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.net.URI
 import java.nio.file.Paths
 import java.util.*
 import java.util.logging.Logger
@@ -30,7 +35,6 @@ Stack implementation on top of MutableList<T>
 fun <T> MutableList<T>.push(item: T) = this.add(this.count(), item)
 fun <T> MutableList<T>.pop(): T? = if (this.count() > 0) this.removeAt(this.count() - 1) else null
 fun <T> MutableList<T>.peek(): T? = if (this.count() > 0) this[this.count() - 1] else null
-fun <T> MutableList<T>.hasMore() = this.count() > 0
 typealias Stack<T> = MutableList<T>
 
 // Things to do:
@@ -55,7 +59,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
 
     override fun processPresentationNode(presentation: Presentation) {
         logger.info("Processing presentation node...")
-        val titleSlide = Title(deck, presentation.title.replace("|", "\n"), "")
+        val titleSlide = TitleSlide(deck, presentation.title.replace("|", "\n"), "")
 
         // Subtitle text -- author, affiliation, and contact information
         val authorText = "${presentation.author}\n" +
@@ -113,9 +117,9 @@ class PPTXProcessor(options : Options) : Processor(options) {
     override fun processSection(section: Section) {
         logger.info("Creating section ${section.title} slide...")
         if (section.subtitle != null && section.subtitle.isNotBlank())
-            SectionHeader(deck, section.title, section.subtitle)
+            SectionHeaderSlide(deck, section.title, section.subtitle)
         else
-            SectionHeader(deck, section.title, section.quote.orEmpty() + "\n --" + section.attribution.orEmpty())
+            SectionHeaderSlide(deck, section.title, section.quote.orEmpty() + "\n --" + section.attribution.orEmpty())
     }
 
     private val xpath: XPath = XPathFactory.newInstance().newXPath()
@@ -130,9 +134,9 @@ class PPTXProcessor(options : Options) : Processor(options) {
         }
     }
 
-    fun processLegacyCodeSlide(slide : Slide) {
+    private fun processLegacyCodeSlide(slide : Slide) {
         logger.info("Creating legacy code slide for $slide")
-        val currentSlide = TitleOnly(deck, slide.title)
+        val currentSlide = CodeSlide(deck, slide.title)
 
         logger.info("Title anchor: ${currentSlide.title.anchor}")
         val titleAnchor = currentSlide.title.anchor
@@ -140,88 +144,64 @@ class PPTXProcessor(options : Options) : Processor(options) {
         println("currentAnchor = $currentAnchor")
 
         val childNodes = slide.node.childNodes
-        for (nidx in 0..childNodes.length - 1) {
+        for (nidx in 0 until childNodes.length) {
             val node = childNodes.item(nidx)
             when (node.nodeName) {
                 "text" -> {
                     logger.info("Handling text section: " + node.textContent)
-
-                    val newShape = currentSlide.slide.createTextBox()
-                    newShape.anchor = Rectangle2D.Double(currentAnchor.x, currentAnchor.y, currentAnchor.width, 0.0)
-                    newShape.clearText()
-
-                    val paragraph = newShape.addNewTextParagraph()
-                    paragraph.fontAlign = TextParagraph.FontAlign.TOP
-                    val run = paragraph.addNewTextRun()
-                    run.setText(node.textContent)
-                    newShape.resizeToFitText()
-
-                    currentAnchor.y += newShape.anchor.height
+                    currentSlide.addTextBlock(node.textContent)
                 }
                 "code" -> {
                     logger.info("Handling code section: " + node.textContent)
 
-                    val newShape = currentSlide.slide.createTextBox()
-                    newShape.anchor = Rectangle2D.Double(currentAnchor.x, currentAnchor.y, currentAnchor.width, 0.0)
-                    newShape.clearText()
-
-                    val paragraph = newShape.addNewTextParagraph()
-                    paragraph.setBulletStyle() // omit bullets
-                    paragraph.fontAlign = TextParagraph.FontAlign.TOP
-                    val run = paragraph.addNewTextRun()
-                    run.fontFamily = "Consolas"
-                    run.fontSize = 14.0
-                    run.setFontColor(Color.WHITE)
-                    newShape.fillColor = Color.BLACK
-
                     // Are we importing code from disk, or using what's inside the code tag itself?
-                    if (node.hasAttributes() && node.attributes.getNamedItem("src") != null) {
-                        logger.info("node: ${node}")
-
+                    val code = if (node.hasAttributes() && node.attributes.getNamedItem("src") != null) {
                         // Importing code from disk; find out the src and the optional marker
+
+                        // If this file was xinclude'd, then the relative location of the src file
+                        // won't be to correct; grab the baseURI of the xinclude'd document to use
+                        // that as a starting point for finding the file in question
+                        val src = node.attributes.getNamedItem("src").textContent
                         val srcfile = if (node.baseURI != null) {
-                            val path = Paths.get(node.baseURI.substringAfter("file:/"))
-                            path.parent.resolve(node.attributes.getNamedItem("src").textContent).toString()
-                        }
-                        else {
-                            node.attributes.getNamedItem("src").textContent
+                            Paths.get(URI.create(node.baseURI)).parent.resolve(src).toFile()
+                        } else {
+                            File(src)
                         }
                         val marker = node.attributes.getNamedItem("marker")?.textContent
-                        val file = File(srcfile)
                         logger.info("Pulling code from ${srcfile} at $marker")
+
+                        assert(srcfile.exists())
+                        assert(srcfile.isFile)
 
                         val text = mutableListOf<String>()
                         if (marker == null) {
-                            file.forEachLine { text.add(it) }
+                            srcfile.forEachLine { text.add(it) }
                         } else {
                             var capturing = false
-                            file.forEachLine {
-                                if (it.contains("{{## END " + marker + " ##}}"))
+                            srcfile.forEachLine {
+                                if (it.contains("{{## END $marker ##}}"))
                                     capturing = false
                                 if (capturing)
                                     text.add(if (it == "") "    " else it)
-                                if (it.contains("{{## BEGIN " + marker + " ##}}"))
+                                if (it.contains("{{## BEGIN $marker ##}}"))
                                     capturing = true
                             }
                         }
-                        val setText = text.joinToString("\n")
-                        logger.info("Writing out $setText into code block from $text")
-
-                        run.setText(setText)
+                        logger.info("Writing out $text into code block")
+                        text.joinToString("\n")
                     } else {
                         // Using what's inside the code tag itself
-                        run.setText(node.textContent)
+                        node.textContent
                     }
 
-                    newShape.resizeToFitText()
-                    currentAnchor.y += newShape.anchor.height + 5.0
+                    currentSlide.addCodeBlock(code)
                 }
             }
         }
     }
-    fun processContentSlide(slide : Slide) {
+    private fun processContentSlide(slide : Slide) {
         logger.info("Creating content slide for $slide")
-        val currentSlide = TitleAndContent(deck, slide.title)
+        val currentSlide = TitleAndContentSlide(deck, slide.title)
         val paragraphStack : Stack<XSLFTextParagraph> = mutableListOf()
         val paragraphGeneratorStack : Stack<() -> XSLFTextParagraph> = mutableListOf()
         paragraphGeneratorStack.push {
@@ -264,7 +244,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
             val indentLevel = paragraphGeneratorStack.size - 1
             // -1 for the default paragraphGenerator
             paragraphGeneratorStack.push {
-                logger.info("Ordered List! indent level ${indentLevel}")
+                logger.info("Ordered List! indent level $indentLevel")
                 val para = currentSlide.content.addNewTextParagraph()
                 para.isBullet = true //if (ol.delimiter == '*') true else false  // TEST TEST TEST
                 para.indentLevel = indentLevel
@@ -308,34 +288,5 @@ class PPTXProcessor(options : Options) : Processor(options) {
         }))
 
         visitor.visit(slide.markdownBody)
-    }
-    override fun startEmphasis(em: Emphasis) {
-        if (currentRun == null)
-            currentRun = currentPara!!.addNewTextRun()
-        currentRun!!.isItalic = true
-    }
-
-    override fun endEmphasis(em: Emphasis) {
-        currentRun = null
-    }
-
-    override fun startStrongEmphasis(em: StrongEmphasis) {
-        if (currentRun == null)
-            currentRun = currentPara!!.addNewTextRun()
-        currentRun!!.isBold = true
-    }
-    override fun endStrongEmphasis(em: StrongEmphasis) {
-        currentRun = null
-    }
-
-    override fun startCode(code : Code) {
-    }
-    override fun endCode(code: Code) {
-    }
-
-    override fun text(text : Text) {
-        if (currentRun == null)
-            currentRun = currentPara!!.addNewTextRun()
-        currentRun!!.setText(text.childChars.unescape())
     }
 }

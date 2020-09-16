@@ -3,6 +3,7 @@
  */
 package com.newardassociates.pptbuilder
 
+import com.newardassociates.pptbuilder.pptx.PPTXProcessor
 import kotlinx.cli.*
 import java.io.File
 import java.io.FileInputStream
@@ -12,18 +13,25 @@ fun main(args: Array<String>) {
     println("pptbuilder v0.9")
     println("---------------")
     val cliParser = ArgParser("pptbuilder")
+
     val input by cliParser.argument(ArgType.String, description = "Input file")
     val output by cliParser.argument(ArgType.String, description = "Output file name").optional()
 
-    //val outputDir by cliParser.option(ArgType.String, fullName = "outputDir", shortName = "d",
-    //        description = "Output directory into which to place the generated file").default("")
+    val baseDirectory by cliParser.option(ArgType.String,
+            fullName = "workingDir", shortName = "wd",
+            description = "Working directory").default("")
+    val outputDir by cliParser.option(ArgType.String, fullName = "outputDir", shortName = "d",
+            description = "Output directory into which to place the generated file").default("")
+
+    val verbosity by cliParser.option(ArgType.Choice(listOf("quiet", "info", "debug")),
+            fullName = "verbosity", shortName = "v",
+            description = "How much logging to display").default("info")
     val format by cliParser.option(ArgType.Choice(listOf("pptx")),
             fullName = "format", shortName = "f",
             description = "Output format to use").default("pptx")
-    //val template by cliParser.option(ArgType.String, fullName = "template", shortName = "t",
-    //        description = "The processing template file to use to start from (pptx only)")
-    //val debug by cliParser.option(ArgType.Boolean, fullName = "verbose", shortName = "v",
-    //        description="Turn on debug/verbose mode").default(false)
+    val template by cliParser.option(ArgType.String,
+            fullName = "template", shortName = "t",
+            description = "The processing template file to use to start from (pptx only)")
 
     cliParser.parse(args)
 

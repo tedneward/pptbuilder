@@ -1,0 +1,14 @@
+<presentation xmlns:xi="http://www.w3.org/2001/XInclude">
+    <head>
+        <title>Busy Developer's Guide to|pptxLegacyXIncludedCode</title>
+        <abstract>None</abstract>
+        <author><name>Ted Neward</name></author>
+        <audience>For any intermediate Java (2 or more years) audience</audience>
+        <category>Testing</category>
+        <category>Presentation</category>
+    </head>
+
+    <section title="Section Slide" subtitle="Everything after here is XIncluded" />
+
+    <xi:include href="Content/codeslide.xmlmd" />
+</presentation>
