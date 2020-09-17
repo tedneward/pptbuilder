@@ -11,7 +11,7 @@ Legacy examples/samples appear in "slidesamples/legacy".
 ## New format: XML/MD
 The new format wants to be pure Markdown inside of XML. The XML is still useful because of XInclude, to modularize, and XML allows for in-place metadata on various slide elements. Markdown then describes each slide. I would like to support the full flavor of Markdown, so as to allow for maximum flexibility in slide content, though some features of Markdown will be tricky to translate.
 
-New format examples/samples appear in "slidesamples/xmlmd".
+New format examples/samples appear in "src/tests/kotlin" and "src/tests/resources", with the "xmlmd" suffix. (I deliberately chose to use a different suffix than just "xml" because I want to differentiate these files against other XML files that might be used. It's easy enough to configure editors to recognize "xmlmd" as an "xml" file type, after all.)
 
 I would like the tool to parse XMLMD into an AST, then transform that AST into a variety of different output formats: PPTX (it's been long enough, let's just move away from PPT at this point), PDF, and HTML ([Slidy?](https://www.w3.org/2005/03/slideshow.html#(1)) [RevealJS?](https://revealjs.com/)).
 
