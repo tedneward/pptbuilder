@@ -13,7 +13,7 @@ The new format wants to be pure Markdown inside of XML. The XML is still useful 
 
 New format examples/samples appear in "slidesamples/xmlmd".
 
-I would like the tool to parse XMLMD into an AST, then transform that AST into a variety of different output formats: PPTX (it's been long enough, let's just move away from PPT at this point), PDF, and HTML (Slidy?).
+I would like the tool to parse XMLMD into an AST, then transform that AST into a variety of different output formats: PPTX (it's been long enough, let's just move away from PPT at this point), PDF, and HTML ([Slidy?](https://www.w3.org/2005/03/slideshow.html#(1))).
 
 I also want a tool (not necessarily the same one) that knows how to parse the legacy format and spit out XMLMD equivalents, for easy porting.
 
