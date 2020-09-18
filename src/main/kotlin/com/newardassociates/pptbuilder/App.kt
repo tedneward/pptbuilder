@@ -89,7 +89,10 @@ fun main(args: Array<String>) {
         //"ast" -> ASTProcessor(processorOptions)
         "nop" -> NOPProcessor(processorOptions)  // just for verifying input, don't generate output
         "text" -> TextProcessor(processorOptions)
-        "html" -> HTMLProcessor(processorOptions)
+        //"slidy" -> SlidyProcessor(processorOptions)  // for HTML Slidy
+        //"reveal" -> RevealProcessor(processorOptions)  // for HTML/reveal.js
+        //"webslides" -> WebSlidesProcessor(processorOptions)  // for HTML WebSlides
+        //"impress" -> ImpressProcessor(processorOptions)  // for HTML/impress.js 
         else -> throw IllegalArgumentException("Unrecognized format: " + format.toString())
     }).process(Parser(properties).parse(File(input)))
 }
