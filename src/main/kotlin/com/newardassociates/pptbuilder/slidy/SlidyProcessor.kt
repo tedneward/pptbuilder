@@ -75,7 +75,9 @@ class SlidyProcessor(options: Options) : Processor(options) {
         <!-- TODO: Use custom stylesheets -->
         <link rel="stylesheet" type="text/css" media="screen, projection" href="http://www.w3.org/Talks/Tools/Slidy/w3c-blue.css" />
         <script src="http://www.w3.org/Talks/Tools/Slidy/slidy.js" type="text/javascript"></script>
-        <style type="text/css"><!-- your custom style rules --></style>
+        <style type="text/css">
+pre { color: rgb(220,220,220); font-family: "Lucida Console", Courier, monospace; font-size: 80%; font-weight: bold; line-height: 120%; }
+        </style>
     </head>
     
     <body>
@@ -98,20 +100,20 @@ ${contactInfoString()}
     }
 
     override fun processSection(section: Section) {
-        outputString += """
+        outputString += """\n
         <div class="slide cover">
             <img src="http://www.w3.org/Talks/Tools/Slidy/keys.jpg" alt="Cover page images (keys)" class="cover" />
             <br clear="all" />
             <h1>${section.title}</h1>
             <!-- <h2>${section.subtitle ?: section.quote + " --" + section.attribution}</h2> -->
-        </div>
+        </div>\n
         """
     }
 
     override fun processContentSlide(slide: Slide) {
         logger.info("Creating content slide for $slide")
 
-        outputString += "        <div class=\"slide\">\n            <h1>${slide.title}</h1>\n"
+        outputString += "\n        <div class=\"slide\">\n            <h1>${slide.title}</h1>\n"
 
         val visitor = NodeVisitor()
 
@@ -162,12 +164,12 @@ ${contactInfoString()}
 
         visitor.visit(slide.markdownBody)
 
-        outputString += "        </div>"
+        outputString += "        </div>\n"
     }
 
     override fun processLegacyCodeSlide(slide: Slide) {
         logger.info("Creating legacy code slide for $slide")
-        outputString += "        <div class=\"slide\">\n            <h1>${slide.title}</h1>\n"
+        outputString += "\n        <div class=\"slide\">\n            <h1>${slide.title}</h1>\n"
 
         val childNodes = slide.node.childNodes
         for (nidx in 0 until childNodes.length) {
@@ -183,5 +185,6 @@ ${contactInfoString()}
                 }
             }
         }
+        outputString += "\n        </div>\n"
     }
 }

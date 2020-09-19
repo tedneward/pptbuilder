@@ -30,7 +30,7 @@ fun main(args: Array<String>) {
     val verbosity by cliParser.option(ArgType.Choice(listOf("quiet", "warning", "info", "debug")),
             fullName = "verbosity", shortName = "v",
             description = "How much logging to display").default("warning")
-    val format by cliParser.option(ArgType.Choice(listOf("pptx", "slidy", "nop")),
+    val format by cliParser.option(ArgType.Choice(listOf("pptx", "reveal", "slidy", "text", "nop")),
             fullName = "format", shortName = "f",
             description = "Output format to use").default("pptx")
     val template by cliParser.option(ArgType.String,
@@ -82,14 +82,14 @@ fun main(args: Array<String>) {
 
     // It's just too much fun to NOT do all of this in one compound expression
     (when (format) {
-        "pptx" -> PPTXProcessor(processorOptions)
         //"ast" -> ASTProcessor(processorOptions)
         "nop" -> NOPProcessor(processorOptions)  // just for verifying input, don't generate output
-        "text" -> TextProcessor(processorOptions)
-        "slidy" -> SlidyProcessor(processorOptions)  // for HTML Slidy
+        //"impress" -> ImpressProcessor(processorOptions)  // for HTML/impress.js
+        "pptx" -> PPTXProcessor(processorOptions)
         "reveal" -> RevealProcessor(processorOptions)  // for HTML/reveal.js
+        "slidy" -> SlidyProcessor(processorOptions)  // for HTML Slidy
+        "text" -> TextProcessor(processorOptions)
         //"webslides" -> WebSlidesProcessor(processorOptions)  // for HTML WebSlides
-        //"impress" -> ImpressProcessor(processorOptions)  // for HTML/impress.js 
         else -> throw IllegalArgumentException("Unrecognized format: " + format.toString())
     }).process(Parser(properties).parse(File(input)))
 }
