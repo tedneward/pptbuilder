@@ -6,7 +6,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class PPTBuilderTests {
-    private val outPath = "build/test-results/test/"
+    private val outPath = "build/test-results/test/pptx"
     lateinit var deck: Deck
 
     @BeforeTest

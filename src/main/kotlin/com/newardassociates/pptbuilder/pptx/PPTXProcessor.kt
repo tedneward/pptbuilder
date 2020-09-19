@@ -43,12 +43,8 @@ class PPTXProcessor(options : Options) : Processor(options) {
     private val logger = Logger.getLogger(PPTXProcessor::class.java.canonicalName)
     private val deck = Deck(if (options.templateFile != "") XMLSlideShow(FileInputStream(options.templateFile)) else XMLSlideShow())
 
-    override fun process(presentation: Presentation) {
-        logger.info("Beginning PPTX processing of ${presentation.title} to ${options.outputFilename}")
-
-        super.process(presentation)
-
-        val outputFilename = options.outputFilename + (if (options.outputFilename.endsWith(".pptx")) "" else ".pptx")
+    override val processorExtension : String = "pptx"
+    override fun write(outputFilename: String) {
         logger.info("Writing contents to ${outputFilename}...")
         deck.ppt.write(FileOutputStream(outputFilename))
     }

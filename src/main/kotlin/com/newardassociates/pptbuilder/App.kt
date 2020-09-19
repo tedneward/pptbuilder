@@ -3,9 +3,9 @@
  */
 package com.newardassociates.pptbuilder
 
-import com.newardassociates.pptbuilder.html.HTMLProcessor
 import com.newardassociates.pptbuilder.nop.NOPProcessor
 import com.newardassociates.pptbuilder.pptx.PPTXProcessor
+import com.newardassociates.pptbuilder.slidy.SlidyProcessor
 import com.newardassociates.pptbuilder.text.TextProcessor
 import kotlinx.cli.*
 import java.io.File
@@ -89,7 +89,7 @@ fun main(args: Array<String>) {
         //"ast" -> ASTProcessor(processorOptions)
         "nop" -> NOPProcessor(processorOptions)  // just for verifying input, don't generate output
         "text" -> TextProcessor(processorOptions)
-        //"slidy" -> SlidyProcessor(processorOptions)  // for HTML Slidy
+        "slidy" -> SlidyProcessor(processorOptions)  // for HTML Slidy
         //"reveal" -> RevealProcessor(processorOptions)  // for HTML/reveal.js
         //"webslides" -> WebSlidesProcessor(processorOptions)  // for HTML WebSlides
         //"impress" -> ImpressProcessor(processorOptions)  // for HTML/impress.js 

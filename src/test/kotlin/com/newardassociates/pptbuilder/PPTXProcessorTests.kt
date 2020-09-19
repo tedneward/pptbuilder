@@ -6,7 +6,12 @@ import java.util.*
 import kotlin.test.Test
 
 class PPTXProcessorTests {
-    private val outPath = "build/test-results/test/"
+    private val outPath = "build/test-results/test/pptx/"
+    init {
+        if (!File(outPath).exists()) {
+            File(outPath).mkdirs()
+        }
+    }
 
     @Test
     fun pptxTitleOnly() {

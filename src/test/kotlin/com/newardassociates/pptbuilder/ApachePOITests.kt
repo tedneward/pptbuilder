@@ -17,7 +17,7 @@ import kotlin.test.Test
 class ApachePOITests {
     @Test fun generalTest() {
         // Does the test PPTX exist already?
-        val apachePOITestFile = "./build/test-results/test/apachePOITest.pptx"
+        val apachePOITestFile = "./build/test-results/test/pptx/apachePOITest.pptx"
         val ppt =
                 if (File(apachePOITestFile).exists()) { XMLSlideShow(FileInputStream(apachePOITestFile)) }
                 else { XMLSlideShow() }
@@ -57,7 +57,7 @@ class ApachePOITests {
         FileOutputStream(apachePOITestFile).use { out -> ppt.write(out) }
     }
 
-    private val outPath = "build/test-results/test/apachePOITest-"
+    private val outPath = "build/test-results/test/pptx/apachePOITest-"
 
     @Test fun textboxCreation() {
         XMLSlideShow().use { ppt ->

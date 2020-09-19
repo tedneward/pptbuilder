@@ -4,8 +4,12 @@ import com.newardassociates.pptbuilder.Presentation
 import com.newardassociates.pptbuilder.Processor
 import com.newardassociates.pptbuilder.Section
 import com.newardassociates.pptbuilder.Slide
+import java.io.FileWriter
 
 class TextProcessor(options: Options) : Processor(options) {
+    override val processorExtension : String = "txt"
+    override fun write(outputFilename: String) { }
+
     var tabCount = 0
     fun tabs() : String {
         var ret = ""

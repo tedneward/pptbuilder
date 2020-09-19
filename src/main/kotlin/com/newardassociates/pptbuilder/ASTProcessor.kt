@@ -1,7 +1,14 @@
 package com.newardassociates.pptbuilder
 
+import java.io.FileWriter
+
 class ASTProcessor(options : Options) : Processor(options) {
     var contents : String = ""
+
+    override val processorExtension : String = "ast"
+    override fun write(outputFilename: String) {
+        System.out.println(contents)
+    }
 
     override fun processPresentationNode(presentation : Presentation) {
         contents += "(Presentation: title:${presentation.title})"

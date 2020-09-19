@@ -2,6 +2,7 @@ package com.newardassociates.pptbuilder
 
 import org.w3c.dom.Node
 import java.io.File
+import java.io.FileOutputStream
 import java.net.URI
 import java.nio.file.Paths
 import java.util.logging.Logger
@@ -17,6 +18,10 @@ abstract class Processor(val options : Options) {
         val noNotesSlides : Boolean = false
     )
 
+    abstract val processorExtension : String
+
+    abstract fun write(outputFilename : String)
+
     open fun process(presentation : Presentation) {
         processPresentationNode(presentation)
         for (slide in presentation.slides) {
@@ -25,6 +30,8 @@ abstract class Processor(val options : Options) {
                 is Section -> processSection(slide)
             }
         }
+
+        write(options.outputFilename + (if (options.outputFilename.endsWith(processorExtension)) "" else processorExtension))
     }
 
     abstract fun processPresentationNode(presentation : Presentation)
