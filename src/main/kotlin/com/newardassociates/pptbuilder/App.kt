@@ -5,6 +5,7 @@ package com.newardassociates.pptbuilder
 
 import com.newardassociates.pptbuilder.nop.NOPProcessor
 import com.newardassociates.pptbuilder.pptx.PPTXProcessor
+import com.newardassociates.pptbuilder.reveal.RevealProcessor
 import com.newardassociates.pptbuilder.slidy.SlidyProcessor
 import com.newardassociates.pptbuilder.text.TextProcessor
 import kotlinx.cli.*
@@ -23,9 +24,6 @@ fun main(args: Array<String>) {
     val input by cliParser.argument(ArgType.String, description = "Input file")
     val output by cliParser.argument(ArgType.String, description = "Output file name").optional()
 
-    val baseDirectory by cliParser.option(ArgType.String,
-            fullName = "workingDir", shortName = "wd",
-            description = "Working directory").default("")
     val outputDirectory by cliParser.option(ArgType.String, fullName = "outputDir", shortName = "d",
             description = "Output directory into which to place the generated file").default("")
 
@@ -79,8 +77,7 @@ fun main(args: Array<String>) {
      */
     val processorOptions = Processor.Options(
             outputFilename = outputPath + outputFile,
-            templateFile = templateFile,
-            baseDirectory = baseDirectory.toString()
+            templateFile = templateFile
     );
 
     // It's just too much fun to NOT do all of this in one compound expression
@@ -90,7 +87,7 @@ fun main(args: Array<String>) {
         "nop" -> NOPProcessor(processorOptions)  // just for verifying input, don't generate output
         "text" -> TextProcessor(processorOptions)
         "slidy" -> SlidyProcessor(processorOptions)  // for HTML Slidy
-        //"reveal" -> RevealProcessor(processorOptions)  // for HTML/reveal.js
+        "reveal" -> RevealProcessor(processorOptions)  // for HTML/reveal.js
         //"webslides" -> WebSlidesProcessor(processorOptions)  // for HTML WebSlides
         //"impress" -> ImpressProcessor(processorOptions)  // for HTML/impress.js 
         else -> throw IllegalArgumentException("Unrecognized format: " + format.toString())

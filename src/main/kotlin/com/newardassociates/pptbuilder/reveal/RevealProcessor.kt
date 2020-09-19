@@ -1,4 +1,4 @@
-package com.newardassociates.pptbuilder.slidy
+package com.newardassociates.pptbuilder.reveal
 
 import com.newardassociates.pptbuilder.Presentation
 import com.newardassociates.pptbuilder.Processor
@@ -13,20 +13,22 @@ import java.time.Instant
 import java.util.*
 import java.util.logging.Logger
 
-/**
- * TODO: Create a thematic background/colorscheme/images
- * TODO: "templates" (themes) with Slidy
- * TODO: Set up an "offline" option for Slidy; this will write all the files needed into a localized .zip file output
- */
-class SlidyProcessor(options: Options) : Processor(options) {
-    private val logger = Logger.getLogger(SlidyProcessor::class.java.canonicalName)
+class RevealProcessor(options: Options) : Processor(options) {
+    private val logger = Logger.getLogger(RevealProcessor::class.java.canonicalName)
 
     var outputString = ""
 
     override val processorExtension : String = "html"
     override fun write(outputFilename: String) {
         // Close it all up
-        outputString += "\n</body>\n</html>"
+        outputString += """
+        </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.9.2/js/reveal.js"></script>
+        <script>Reveal.initialize({ slideNumber: true });</script>
+    </body>
+</html>
+        """.trimIndent()
 
         logger.info("Writing contents to ${outputFilename}...")
         FileWriter(outputFilename).use {
@@ -59,7 +61,7 @@ class SlidyProcessor(options: Options) : Processor(options) {
         }
 
         outputString += """
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"> 
+<html>
     <head>
         <title>${presentation.title.replace("|", " ")}</title>
         <meta name="author" content="${presentation.author}" />
@@ -67,49 +69,34 @@ class SlidyProcessor(options: Options) : Processor(options) {
         <meta name="description" content="${presentation.abstract}" />
         <meta name="keywords" content="${presentation.keywords.joinToString(",")}" />
 
-        <link rel="stylesheet" type="text/css" media="screen, projection" href="http://www.w3.org/Talks/Tools/Slidy/show.css" />
-        <link rel="stylesheet" type="text/css" media="print" href="http://www.w3.org/Talks/Tools/Slidy/print.css" />
-
-        <!-- TODO: Use custom stylesheets -->
-        <link rel="stylesheet" type="text/css" media="screen, projection" href="http://www.w3.org/Talks/Tools/Slidy/w3c-blue.css" />
-        <script src="http://www.w3.org/Talks/Tools/Slidy/slidy.js" type="text/javascript"></script>
-        <style type="text/css"><!-- your custom style rules --></style>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.9.2/css/reveal.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.9.2/css/theme/black.min.css">
     </head>
-    
     <body>
-        <!-- TODO: Replace the background with my own design -->
-        <div class="background">
-            <img id="head-icon" alt="graphic with four colored squares" src="http://www.w3.org/Talks/Tools/Slidy/icon-blue.png" align="left" />
-            <object id="head-logo" title="W3C logo" type="image/svg+xml" data="http://www.w3.org/Talks/Tools/Slidy/w3c-logo.svg">
-                <img alt="W3C logo" id="head-logo-fallback" src="http://www.w3.org/Talks/Tools/Slidy/w3c-logo-blue.gif" align="right"/>
-            </object>
-        </div>
-        <div class="slide cover">
-            <img src="http://www.newardassociates.com/assets/img/javapolic.jpg" alt="Cover page images" class="cover" />
-            <br clear="all" />
+        <div class="reveal">
+        <div class="slides">
+        <section>
             <h1>${presentation.title.replace("|", "\n")}</h1>
             <p>
 ${contactInfoString()}
             </p>
-        </div>
+        </section>
         """
     }
 
     override fun processSection(section: Section) {
         outputString += """
-        <div class="slide cover">
-            <img src="http://www.w3.org/Talks/Tools/Slidy/keys.jpg" alt="Cover page images (keys)" class="cover" />
-            <br clear="all" />
+        <section>
             <h1>${section.title}</h1>
-            <!-- <h2>${section.subtitle ?: section.quote + " --" + section.attribution}</h2> -->
-        </div>
+            <h2>${section.subtitle ?: section.quote + " --" + section.attribution}</h2>
+        </section>
         """
     }
 
     override fun processContentSlide(slide: Slide) {
         logger.info("Creating content slide for $slide")
 
-        outputString += "        <div class=\"slide\">\n            <h1>${slide.title}</h1>\n"
+        outputString += "        <section>        <h1>${slide.title}</h1>"
 
         val visitor = NodeVisitor()
 
@@ -160,12 +147,12 @@ ${contactInfoString()}
 
         visitor.visit(slide.markdownBody)
 
-        outputString += "        </div>"
+        outputString += "            </section>"
     }
 
     override fun processLegacyCodeSlide(slide: Slide) {
         logger.info("Creating legacy code slide for $slide")
-        outputString += "        <div class=\"slide\">\n            <h1>${slide.title}</h1>\n"
+        outputString += "        <section>        <h1>${slide.title}</h1>"
 
         val childNodes = slide.node.childNodes
         for (nidx in 0 until childNodes.length) {
@@ -181,5 +168,7 @@ ${contactInfoString()}
                 }
             }
         }
+
+        outputString += "            </section>"
     }
 }
