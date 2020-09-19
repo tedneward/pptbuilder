@@ -14,6 +14,8 @@ import java.util.*
 import java.util.logging.Logger
 
 /**
+ * Documented at https://www.w3.org/2005/03/slideshow.html#(3) (sort of; wish there was better reference docs)
+ *
  * TODO: Create a thematic background/colorscheme/images
  * TODO: "templates" (themes) with Slidy
  * TODO: Set up an "offline" option for Slidy; this will write all the files needed into a localized .zip file output

@@ -13,6 +13,9 @@ import java.time.Instant
 import java.util.*
 import java.util.logging.Logger
 
+/**
+ * Documented at https://revealjs.com/
+ */
 class RevealProcessor(options: Options) : Processor(options) {
     private val logger = Logger.getLogger(RevealProcessor::class.java.canonicalName)
 
