@@ -73,7 +73,9 @@ class SlidyProcessor(options: Options) : Processor(options) {
         <!-- TODO: Use custom stylesheets -->
         <link rel="stylesheet" type="text/css" media="screen, projection" href="http://www.w3.org/Talks/Tools/Slidy/w3c-blue.css" />
         <script src="http://www.w3.org/Talks/Tools/Slidy/slidy.js" type="text/javascript"></script>
-        <style type="text/css"><!-- your custom style rules --></style>
+        <style type="text/css">
+pre { color: rgb(220,220,220); font-family: "Lucida Console", Courier, monospace; font-size: 80%; font-weight: bold; line-height: 120%; }
+        </style>
     </head>
     
     <body>
