@@ -1,11 +1,15 @@
 package com.newardassociates.pptbuilder
 
 import org.w3c.dom.Node
+import org.w3c.dom.NodeList
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URI
 import java.nio.file.Paths
 import java.util.logging.Logger
+import javax.xml.xpath.XPath
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathFactory
 
 abstract class Processor(val options : Options) {
     private val logger = Logger.getLogger(Processor::class.java.canonicalName)
@@ -31,12 +35,26 @@ abstract class Processor(val options : Options) {
             }
         }
 
-        write(options.outputFilename + (if (options.outputFilename.endsWith(processorExtension)) "" else processorExtension))
+        write(options.outputFilename + (if (options.outputFilename.endsWith(processorExtension)) "" else ".$processorExtension"))
     }
 
     abstract fun processPresentationNode(presentation : Presentation)
     abstract fun processSection(section : Section)
-    abstract fun processSlide(slide : Slide)
+
+    private val xpath: XPath = XPathFactory.newInstance().newXPath()
+    private val codeXPath = xpath.compile(".//code")
+    open fun processSlide(slide : Slide) {
+        val codeNodes = codeXPath.evaluate(slide.node, XPathConstants.NODESET) as NodeList?
+        if (codeNodes != null && codeNodes.length > 0) {
+            processLegacyCodeSlide(slide)
+        }
+        else {
+            processContentSlide(slide)
+        }
+    }
+
+    open fun processLegacyCodeSlide(slide : Slide) { }
+    open fun processContentSlide(slide : Slide) { }
 
     fun importCode(node : Node) : String {
         logger.info("Importing code")

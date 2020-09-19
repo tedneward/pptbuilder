@@ -15,6 +15,12 @@ import java.io.FileOutputStream
 import kotlin.test.Test
 
 class ApachePOITests {
+    init {
+        if (!File("./build/test-results/test/pptx/").exists()) {
+            File("./build/test-results/test/pptx/").mkdirs()
+        }
+    }
+
     @Test fun generalTest() {
         // Does the test PPTX exist already?
         val apachePOITestFile = "./build/test-results/test/pptx/apachePOITest.pptx"

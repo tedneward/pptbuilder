@@ -32,7 +32,7 @@ fun main(args: Array<String>) {
     val verbosity by cliParser.option(ArgType.Choice(listOf("quiet", "warning", "info", "debug")),
             fullName = "verbosity", shortName = "v",
             description = "How much logging to display").default("warning")
-    val format by cliParser.option(ArgType.Choice(listOf("pptx", "nop")),
+    val format by cliParser.option(ArgType.Choice(listOf("pptx", "slidy", "nop")),
             fullName = "format", shortName = "f",
             description = "Output format to use").default("pptx")
     val template by cliParser.option(ArgType.String,

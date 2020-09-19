@@ -114,19 +114,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
             SectionHeaderSlide(deck, section.title, section.quote.orEmpty() + "\n --" + section.attribution.orEmpty())
     }
 
-    private val xpath: XPath = XPathFactory.newInstance().newXPath()
-    private val codeXPath = xpath.compile(".//code")
-    override fun processSlide(slide : Slide) {
-        val codeNodes = codeXPath.evaluate(slide.node, XPathConstants.NODESET) as NodeList?
-        if (codeNodes != null && codeNodes.length > 0) {
-            processLegacyCodeSlide(slide)
-        }
-        else {
-            processContentSlide(slide)
-        }
-    }
-
-    private fun processLegacyCodeSlide(slide : Slide) {
+    override fun processLegacyCodeSlide(slide : Slide) {
         logger.info("Creating legacy code slide for $slide")
         val currentSlide = CodeSlide(deck, slide.title)
 
@@ -150,7 +138,8 @@ class PPTXProcessor(options : Options) : Processor(options) {
             }
         }
     }
-    private fun processContentSlide(slide : Slide) {
+
+    override fun processContentSlide(slide : Slide) {
         logger.info("Creating content slide for $slide")
         val currentSlide = TitleAndContentSlide(deck, slide.title)
         val paragraphStack : Stack<XSLFTextParagraph> = mutableListOf()

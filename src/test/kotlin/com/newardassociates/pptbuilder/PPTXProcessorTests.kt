@@ -39,7 +39,7 @@ class PPTXProcessorTests {
 </presentation>
 """.trimIndent()
 
-        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleOnly.pptx")).process(Parser(Properties()).parse(xmlmd))
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleOnly")).process(Parser(Properties()).parse(xmlmd))
     }
 
     @Test
@@ -59,7 +59,7 @@ class PPTXProcessorTests {
 </presentation>
 """.trimIndent()
 
-        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleSection.pptx")).process(Parser(Properties()).parse(xmlmd))
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleSection")).process(Parser(Properties()).parse(xmlmd))
     }
 
     @Test
@@ -85,7 +85,7 @@ class PPTXProcessorTests {
 </presentation>
 """.trimIndent()
 
-        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleOneContent.pptx")).process(Parser(Properties()).parse(xmlmd))
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleOneContent")).process(Parser(Properties()).parse(xmlmd))
     }
 
     @Test
@@ -114,7 +114,7 @@ class PPTXProcessorTests {
 </presentation>
 """.trimIndent()
 
-        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleMarkedupTextContent.pptx")).process(Parser(Properties()).parse(xmlmd))
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleMarkedupTextContent")).process(Parser(Properties()).parse(xmlmd))
     }
 
     @Test
@@ -143,7 +143,7 @@ class PPTXProcessorTests {
 </presentation>
 """.trimIndent()
 
-        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleAndParagraph.pptx")).process(Parser(Properties()).parse(xmlmd))
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleAndParagraph")).process(Parser(Properties()).parse(xmlmd))
     }
 
     @Test
@@ -172,7 +172,7 @@ class PPTXProcessorTests {
 </presentation>
 """.trimIndent()
 
-        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleOrderedListContent.pptx")).process(Parser(Properties()).parse(xmlmd))
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleOrderedListContent")).process(Parser(Properties()).parse(xmlmd))
     }
 
     @Test
@@ -213,12 +213,12 @@ class PPTXProcessorTests {
 </presentation>
 """.trimIndent()
 
-        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxLegacyCode.pptx")).process(Parser(Properties()).parse(xmlmd))
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxLegacyCode")).process(Parser(Properties()).parse(xmlmd))
     }
 
     @Test
     fun pptxLegacyXIncludedCode() {
-        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxLegacyXIncludedCode.pptx", baseDirectory = "src/test/resources/Content"))
-                .process(Parser(Properties()).parse(File("src/test/resources/pptxLegacyXIncludedCode.xmlmd")))
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxLegacyXIncludedCode"))
+                .process(Parser(Properties()).parse(File("src/test/resources/legacyXIncludedCode.xmlmd")))
     }
 }

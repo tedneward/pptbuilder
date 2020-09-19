@@ -1,12 +1,19 @@
 package com.newardassociates.pptbuilder
 
 import com.newardassociates.pptbuilder.pptx.*
+import java.io.File
 import java.io.FileOutputStream
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class PPTBuilderTests {
-    private val outPath = "build/test-results/test/pptx"
+    private val outPath = "build/test-results/test/pptx/"
+    init {
+        if (!File(outPath).exists()) {
+            File(outPath).mkdirs()
+        }
+    }
+
     lateinit var deck: Deck
 
     @BeforeTest
