@@ -18,11 +18,11 @@ class Deck(val ppt: XMLSlideShow) {
     lateinit var blankLayout: XSLFSlideLayout
 
     init {
-        logger.fine("Iterating through layouts in ${ppt}")
+        logger.info("Iterating through layouts in ${ppt}")
         for (master in ppt.slideMasters) {
-            logger.fine("Iterating through layouts in ${master}")
+            logger.info("Iterating through layouts in ${master}")
             for (layout in master.slideLayouts) {
-                logger.fine("Found ${layout.name}")
+                logger.info("Found '${layout.name}'/(${layout.type})")
                 when (layout.type) {
                     SlideLayout.TITLE -> titleLayout = layout
                     SlideLayout.SECTION_HEADER -> sectionHeaderLayout = layout
@@ -30,7 +30,7 @@ class Deck(val ppt: XMLSlideShow) {
                     SlideLayout.TITLE_ONLY -> titleOnlyLayout = layout
                     SlideLayout.BLANK -> blankLayout = layout
                     else -> {
-                        logger.fine("... unrecognized layout: ${layout.name}")
+                        logger.info("... unrecognized layout: '${layout.name}'")
                     }
                 }
             }

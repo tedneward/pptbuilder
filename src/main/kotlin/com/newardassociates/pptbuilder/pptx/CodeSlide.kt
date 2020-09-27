@@ -9,7 +9,7 @@ class CodeSlide(deck: Deck, titleText: String) : TitleOnlySlide(deck, titleText)
     private val logger = Logger.getLogger(CodeSlide::class.java.canonicalName)
 
     val titleAnchor = title.anchor
-    val currentAnchor = Rectangle2D.Double(titleAnchor.x, titleAnchor.y + titleAnchor.height, titleAnchor.width, 0.0)
+    val currentAnchor = Rectangle2D.Double(titleAnchor.x, titleAnchor.y + titleAnchor.height + 15.0, titleAnchor.width, 0.0)
 
     fun addTextBlock(text: String) {
         logger.fine("Adding text block; text='$text'")
@@ -44,6 +44,7 @@ class CodeSlide(deck: Deck, titleText: String) : TitleOnlySlide(deck, titleText)
         val run = paragraph.addNewTextRun()
         run.fontFamily = "Consolas"
         run.fontSize = 14.0
+        run.isBold = false
         run.setFontColor(Color.WHITE)
         newShape.fillColor = Color.BLACK
         run.setText(code)

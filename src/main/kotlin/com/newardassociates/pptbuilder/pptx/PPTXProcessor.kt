@@ -120,8 +120,6 @@ class PPTXProcessor(options : Options) : Processor(options) {
 
         logger.info("Title anchor: ${currentSlide.title.anchor}")
         val titleAnchor = currentSlide.title.anchor
-        val currentAnchor = Rectangle2D.Double(titleAnchor.x, titleAnchor.y + titleAnchor.height, titleAnchor.width, 0.0)
-        println("currentAnchor = $currentAnchor")
 
         val childNodes = slide.node.childNodes
         for (nidx in 0 until childNodes.length) {

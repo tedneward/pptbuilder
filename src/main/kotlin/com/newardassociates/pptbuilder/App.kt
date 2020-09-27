@@ -17,8 +17,8 @@ import java.util.logging.Logger
 import java.util.logging.Level
 
 fun main(args: Array<String>) {
-    println("pptbuilder v0.9")
-    println("---------------")
+    println("pptbuilder v0.9 (Build v.TODO)")
+    println("------------------------------")
     val cliParser = ArgParser("pptbuilder")
 
     val input by cliParser.argument(ArgType.String, description = "Input file")
@@ -43,7 +43,7 @@ fun main(args: Array<String>) {
     Logger.getLogger(::main.javaClass.packageName).level = when (verbosity) {
         "quiet" -> Level.SEVERE
         "info" -> Level.INFO
-        "debug" -> Level.FINEST
+        "debug" -> Level.FINE
         else -> Level.WARNING
     }
 
