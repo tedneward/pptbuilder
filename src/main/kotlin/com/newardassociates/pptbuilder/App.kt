@@ -27,10 +27,10 @@ fun main(args: Array<String>) {
     val outputDirectory by cliParser.option(ArgType.String, fullName = "outputDir", shortName = "d",
             description = "Output directory into which to place the generated file").default("")
 
-    val verbosity by cliParser.option(ArgType.Choice(listOf("quiet", "warning", "info", "debug")),
+    val verbosity by cliParser.option(ArgType.Choice(listOf("quiet", "warning", "info", "debug"), { it }),
             fullName = "verbosity", shortName = "v",
             description = "How much logging to display").default("warning")
-    val format by cliParser.option(ArgType.Choice(listOf("pptx", "reveal", "slidy", "text", "nop")),
+    val format by cliParser.option(ArgType.Choice(listOf("pptx", "reveal", "slidy", "text", "nop"), { it }),
             fullName = "format", shortName = "f",
             description = "Output format to use").default("pptx")
     val template by cliParser.option(ArgType.String,

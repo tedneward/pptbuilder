@@ -1,6 +1,7 @@
 package com.newardassociates.pptbuilder
 
 import com.vladsch.flexmark.ast.FencedCodeBlock
+import com.vladsch.flexmark.ast.Image
 import com.vladsch.flexmark.ast.IndentedCodeBlock
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
@@ -8,7 +9,9 @@ import com.vladsch.flexmark.test.util.AstCollectingVisitor
 import com.vladsch.flexmark.util.ast.Node
 import com.vladsch.flexmark.util.data.MutableDataSet
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class MarkdownParsingTests {
     @Test fun flexmarkMarkdownParse() {
@@ -104,6 +107,22 @@ This is just straight text
         val mdParserOptions = MutableDataSet()
         val mdParser = Parser.builder(mdParserOptions).build()
         val mdAST = mdParser.parse(markdown)
+        print(AstCollectingVisitor().collectAndGetAstText(mdAST))
+    }
+
+    @Test
+    fun markdownImage() {
+        val markdown = """
+            ![](Content/test.png)
+        """.trimIndent()
+        val mdParserOptions = MutableDataSet()
+        val mdParser = Parser.builder(mdParserOptions).build()
+        val mdAST = mdParser.parse(markdown)
+        // mdAST: [Document[Paragraph[Image[]]]]
+        val imgASTNode = (mdAST.children.elementAt(0).children.elementAt(0) as Image)
+        assertTrue(imgASTNode is Image)
+        val img = imgASTNode as Image
+        assertEquals("Content/test.png", img.url.unescape())
         print(AstCollectingVisitor().collectAndGetAstText(mdAST))
     }
 }
