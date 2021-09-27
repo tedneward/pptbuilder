@@ -254,9 +254,7 @@ This is just straight text
         val mdParser = Parser.builder(mdParserOptions).build()
         val mdAST = mdParser.parse(markdown)
         // mdAST: [Document[Paragraph[Image[]]]]
-        val imgASTNode = (mdAST.children.elementAt(0).children.elementAt(0) as Image)
-        assertTrue(imgASTNode is Image)
-        val img = imgASTNode as Image
+        val img = (mdAST.children.elementAt(0).children.elementAt(0) as Image)
         assertEquals(testFileName, img.url.unescape())
         print(AstCollectingVisitor().collectAndGetAstText(mdAST))
     }
