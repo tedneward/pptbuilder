@@ -91,7 +91,7 @@ ${contactInfoString()}
         outputString += """
         <section>
             <h1>${section.title}</h1>
-            <h2>${section.subtitle ?: section.quote + " --" + section.attribution}</h2>
+            <h2>${section.subtitle ?: (section.quote + " --" + section.attribution)}</h2>
         </section>
         """
     }

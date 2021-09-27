@@ -30,38 +30,90 @@
     <xi:include href="Content/section.xmlmd" />
 
     <slide>
-        <notes>These are some notes to go with this slide. Let's see if they make it all the way through.</notes>
-        * First
-          * Nested first
-        * Second
-          * Nested second
-        * Third
-          * Nested third
-        <notes>This is a second set of notes, which should be OK.</notes>
+    # Slide with notes test
+    <notes>These are some notes to go with this slide. Let's see if they make it all the way through.</notes>
+    * First
+        * Nested first
+    * Second
+        * Nested second
+    * Third
+        * Nested third
     </slide>
-    <slide>
-        # Header
 
-        * No special characters
-        * This *emphasized* bullet point
-        * This **strongly emphasized** second bullet point
-        * This `code` point
-    </slide>
     <slide>
-        Let's do some non-bulleted text and see what happens.
+    # Slide with complex notes test
+    <notes>These are some notes to go with this slide. Let's see if they make it all the way through.</notes>
+    * First
+        * Nested first
+    * Second
+        * Nested second
+    * Third
+        * Nested third
+    <notes>This is a second set of notes, which should be OK.</notes>
+    </slide>
+
+    <slide>
+    # Header
+
+    * No special characters
+    * This *emphasized* bullet point
+    * This **strongly emphasized** second bullet point
+    * This `code` point
+    </slide>
+
+    <slide>
+    Let's do some non-bulleted text and see what happens.
+    </slide>
+
+    <slide>
+    # Numbered list
+
+    1. First list item
+        1. First sub item
+        2. Second sub item
+    2. Second list item
+        1. First sub item
+        2. Second sub item
+    </slide>
+
+    <slide>
+    # Bulleted v non-bulleted test
+
+    * This is a bulleted list
+        * One sub-bulleted item
+        * Two sub-bulleted item
+    - This should be a non-bulleted list
+        - One sub-nonbulleted item
+        - Two sub-nonbulleted item
+    </slide>
+
+    <slide>
+    # Footnotes test
+
+    * This is a bullet with a footnote[^alpha]
+    * This is a bullet with a second note[^beta]
+    * This is a bullet with a previous note[^alpha]
+    </slide>
+    <footnote id="alpha">http://www.alpha.com</footnote>
+    <footnote id="beta">Beta Books, by John Q Beta,</footnote>
+
+    <slide>
+    # Image test
+
+    ![][ic_launcher-web.png]
     </slide>
 
     <!--
     <slide>
-        Let's show off some embedded code:
+    Let's show off some embedded code:
 
-        ```
-        console.log("This code is in the XMLMD file")
-        ```
+    ```
+    console.log("This code is in the XMLMD file")
+    ```
 
-        Here is some imported code from `console.js`:
-        ```{language=javascript src=Content/code/console.js}
-        ```
+    Here is some imported code from `console.js`:
+    ```{language=javascript src=Content/code/console.js}
+    ```
     </slide>
     -->
 </presentation>
