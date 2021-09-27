@@ -17,26 +17,28 @@ repositories {
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
     maven { url "https://kotlin.bintray.com/kotlinx" }
+    mavenCentral()
 }
 
 dependencies {
     // Align versions of all Kotlin components
     implementation platform('org.jetbrains.kotlin:kotlin-bom')
 
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21'
 
     implementation 'com.vladsch.flexmark:flexmark-all:0.62.2'
     implementation 'com.vladsch.flexmark:flexmark-test-util:0.62.2'
+    implementation 'com.vladsch.flexmark:flexmark-ext-footnotes:0.62.2'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-cli:0.2.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-cli:0.3.2'
 
-    implementation 'org.apache.poi:poi:4.1.2'
-    implementation 'org.apache.poi:poi-ooxml:4.1.2'
-    implementation 'org.apache.poi:poi-scratchpad:4.1.2'
+    implementation 'org.apache.poi:poi:5.0.0'
+    implementation 'org.apache.poi:poi-ooxml:5.0.0'
+    implementation 'org.apache.poi:poi-scratchpad:5.0.0'
 
     // Use the Kotlin test library & JUnit
-    testImplementation 'org.jetbrains.kotlin:kotlin-test'
-    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test:1.5.21'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:1.5.21'
 }
 
 application {

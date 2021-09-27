@@ -11,10 +11,16 @@ import com.newardassociates.pptbuilder.text.TextProcessor
 import kotlinx.cli.*
 import java.io.File
 import java.io.FileInputStream
+import java.lang.StringBuilder
 import java.util.*
-import java.util.logging.LogManager
-import java.util.logging.Logger
-import java.util.logging.Level
+import java.util.logging.*
+import java.util.logging.Formatter
+
+class TerseFormatter : Formatter() {
+    override fun format(record: LogRecord?): String {
+        return "${record!!.level}: ${formatMessage(record)}\n"
+    }
+}
 
 fun main(args: Array<String>) {
     println("pptbuilder v0.9 (Build v.TODO)")
@@ -40,12 +46,17 @@ fun main(args: Array<String>) {
     cliParser.parse(args)
 
     // Configure LogManager according to verbosity flag
-    Logger.getLogger(::main.javaClass.packageName).level = when (verbosity) {
+    val logger = Logger.getGlobal() //Logger.getLogger(::main.javaClass.packageName)
+    logger.level = when (verbosity) {
         "quiet" -> Level.SEVERE
         "info" -> Level.INFO
         "debug" -> Level.FINE
         else -> Level.WARNING
     }
+    val handler = ConsoleHandler()
+    logger.addHandler(handler)
+    handler.formatter = TerseFormatter()
+    println("Configuring logging at ${logger.level} levels...")
 
     // Grab default properties from .pptbuilder.properties
     val properties = Properties()
@@ -90,6 +101,6 @@ fun main(args: Array<String>) {
         "slidy" -> SlidyProcessor(processorOptions)  // for HTML Slidy
         "text" -> TextProcessor(processorOptions)
         //"webslides" -> WebSlidesProcessor(processorOptions)  // for HTML WebSlides
-        else -> throw IllegalArgumentException("Unrecognized format: " + format.toString())
+        else -> throw IllegalArgumentException("Unrecognized format: ${format}")
     }).process(Parser(properties).parse(File(input)))
 }
