@@ -2,11 +2,11 @@
 A tool to create presentations out of XML/markdown combination
 
 ## Legacy format
-The legacy format is the format I used for presentations prior to the construction of this tool. The legacy format is XML-based, but the contents of the XML slides are a pidgin Markdown-like format in that it uses an incrementing-number of "*" to indicate a bulleted list, and "-" to indicate an unbulleted (no glyph) list. One "*" was top-level (no indent), as was no "*".
+The legacy format is the format I used for presentations prior to the construction of this tool. The legacy format is XML-based, but the contents of the XML slides are a pidgin Markdown-like format in that it uses an incrementing-number of `*` to indicate a bulleted list, and `-` to indicate an unbulleted (no glyph) list. One `*` was top-level (no indent), as was no `*`.
 
 The format suffered from a serious lack of flexibility, in that it offered no hyperlinks, no images, nothing beyond text, really. The tool suffered similarly, in that it could produce PPTs and nothing else. With this generation of tool, I want to correct for that.
 
-Legacy examples/samples appear in "slidesamples/legacy".
+Legacy examples/samples appear in `slidesamples/legacy`.
 
 ## New format: XML/MD
 The new format wants to be pure Markdown inside of XML. The XML is still useful because of XInclude, to modularize, and XML allows for in-place metadata on various slide elements. Markdown then describes each slide. I would like to support the full flavor of Markdown, so as to allow for maximum flexibility in slide content, though some features of Markdown will be tricky to translate.
@@ -20,15 +20,25 @@ I also want a tool (not necessarily the same one) that knows how to parse the le
 ## Tech stack
 I need a Markdown library that doesn't go from Markdown straight to HTML; I need it to parse into an intermediate format that allows me to do the actual output. Beyond that, this could be done in just about any language/platform stack that allows me to do this headless (for CI/CD purposes).
 
-Java seems to be the best solution; it has an XIncluding XML parser, PPTX support (in the Apache POI libraries) and Markdown libraries (Flexmark-Java) that I need. I can write it one of many different Java languages, a la Java, Groovy, Kotlin, Scala, even Clojure if I really feel like punishing myself. ;-) Thinking Kotlin for now--seems to be the best "Java++" I can work with.
+Java seems to be the best solution; it has an XIncluding XML parser, PPTX support (in the Apache POI libraries) and Markdown libraries (Flexmark-Java) that I need. I can write it one of many different Java languages, a la Java, Groovy, Kotlin, Scala, even Clojure if I really feel like punishing myself. ;-) Thinking Kotlin for now--seems to be the best "Java++" I can work with. **Update:** Chose Kotlin, 
 
 ## Feature backlog
 
+### Infrastructure
 * Create a diagnostic log of items happening (with verbosity levels)
+
+* Fix lazyinit titleonly problem with PPT
+
+* Provide "property" support, to customize slide decks with values (mostly to choose whether to include certain slides or sections or not)?
+
+* Work off of template files as starting points for processed output
+
+### Markdown
+* Footnotes (`[^1]` or `[^devguide]`) should be collected into a slide section at the end of the deck; references should be normalized by footnote tag
 
 * Fenced code blocks should be in separate text boxes
 
-* Provide "property" support, to customize slide decks with values (mostly to choose whether to include certain slides or sections or not)?
+* Support "*" vs "-" bullet list differences (bullet vs no-bullet)
 
 * Title slide contact info--all should be relevant hyperlinks (mailto's for email, URL for twitter, etc)
 
@@ -36,11 +46,10 @@ Java seems to be the best solution; it has an XIncluding XML parser, PPTX suppor
 
 * Allow <slide>/<notes> nodes to use Markdown styling
 
-* Work off of template files as starting points for processed output
-
-LinkedIn URLs look like: https://www.linkedin.com/in/tedneward/
-Twitter URLs look like: https://twitter.com/tedneward
-Github URLs look like: https://github.com/tedneward
+* URLs
+    * LinkedIn URLs look like: https://www.linkedin.com/in/tedneward/
+    * Twitter URLs look like: https://twitter.com/tedneward
+    * Github URLs look like: https://github.com/tedneward
 
 ## Sample "~/.pptbuilder.properties" file
 

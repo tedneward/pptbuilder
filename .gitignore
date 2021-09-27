@@ -9,8 +9,10 @@ bin
 # Ignore IntelliJ directory
 .idea/.name
 .idea/pptbuilder.git.iml
+.idea/**
 
 # Ignore VSCode-related files
 .classpath
 .project
 .settings/**
+.vscode/**
