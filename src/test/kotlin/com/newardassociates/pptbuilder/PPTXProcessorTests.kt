@@ -217,6 +217,38 @@ class PPTXProcessorTests {
     }
 
     @Test
+    fun pptxLegacyCodeNoTitle() {
+        val xmlmd = """
+<presentation xmlns:xi="http://www.w3.org/2001/XInclude">
+    <head>
+        <title>Busy Developer's Guide to|pptxLegacyCode</title>
+        <abstract>None</abstract>
+        <author><name>Ted Neward</name></author>
+        <audience>For any intermediate Java (2 or more years) audience</audience>
+        <category>Testing</category>
+        <category>Presentation</category>
+    </head>
+    
+    <section title="Section Slide" subtitle="Section subtitle" />
+    <slide>
+        <text>Text section</text>
+        <code language="js">console.out("Code section")</code>
+        <text>More text</text>
+        <code language="js"><![CDATA[if (x < 4) {
+  console.out("Hey this might actually work after all!");
+}]]></code>
+        <text>Imported code</text>
+        <code language="js" src="src/test/resources/Content/code/console.js" />
+        <text>Marked code</text>
+        <code language="js" src="src/test/resources/Content/code/markedconsole.js" marker="console" />
+    </slide>
+</presentation>
+""".trimIndent()
+
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxLegacyCode")).process(Parser(Properties()).parse(xmlmd))
+    }
+
+    @Test
     fun pptxLegacyXIncludedCode() {
         PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxLegacyXIncludedCode"))
                 .process(Parser(Properties()).parse(File("src/test/resources/legacyXIncludedCode.xmlmd")))

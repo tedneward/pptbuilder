@@ -206,6 +206,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
             paragraphStack.pop()
         }))
         visitor.addHandler(VisitHandler<Text>(Text::class.java, fun (t : Text) {
+            logger.info("TextVisitor, ${paragraphStack}")
             val run = paragraphStack.peek()!!.addNewTextRun()
             run.setText(t.chars.unescape())
         }))

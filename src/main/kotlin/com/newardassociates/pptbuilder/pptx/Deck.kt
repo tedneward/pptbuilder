@@ -30,7 +30,12 @@ class Deck(val ppt: XMLSlideShow) {
                     SlideLayout.TITLE_ONLY -> titleOnlyLayout = layout
                     SlideLayout.BLANK -> blankLayout = layout
                     else -> {
-                        logger.info("... unrecognized layout: '${layout.name}'")
+                        when (layout.name) {
+                            "Title Only" -> titleOnlyLayout = layout
+                            else -> {
+                                logger.info("... unrecognized layout: '${layout.name}'")
+                            }
+                        }
                     }
                 }
             }

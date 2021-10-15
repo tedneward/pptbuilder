@@ -17,7 +17,7 @@ import java.util.logging.Logger
 import java.util.logging.Level
 
 fun main(args: Array<String>) {
-    println("pptbuilder v0.9 (Build v.TODO)")
+    println("pptbuilder v0.9 (Build v.20211015)") // TODO replace with Build-Timestamp from manifest
     println("------------------------------")
     val cliParser = ArgParser("pptbuilder")
 
@@ -27,10 +27,10 @@ fun main(args: Array<String>) {
     val outputDirectory by cliParser.option(ArgType.String, fullName = "outputDir", shortName = "d",
             description = "Output directory into which to place the generated file").default("")
 
-    val verbosity by cliParser.option(ArgType.Choice(listOf("quiet", "warning", "info", "debug")),
+    val verbosity by cliParser.option(ArgType.Choice(listOf("quiet", "warning", "info", "debug"), {it}),
             fullName = "verbosity", shortName = "v",
             description = "How much logging to display").default("warning")
-    val format by cliParser.option(ArgType.Choice(listOf("pptx", "reveal", "slidy", "text", "nop")),
+    val format by cliParser.option(ArgType.Choice(listOf("pptx", "reveal", "slidy", "text", "nop"), {it}),
             fullName = "format", shortName = "f",
             description = "Output format to use").default("pptx")
     val template by cliParser.option(ArgType.String,

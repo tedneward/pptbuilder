@@ -28,7 +28,7 @@ dependencies {
     implementation 'com.vladsch.flexmark:flexmark-all:0.62.2'
     implementation 'com.vladsch.flexmark:flexmark-test-util:0.62.2'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-cli:0.2.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-cli:+'
 
     implementation 'org.apache.poi:poi:4.1.2'
     implementation 'org.apache.poi:poi-ooxml:4.1.2'
