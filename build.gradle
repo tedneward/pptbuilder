@@ -5,6 +5,9 @@
  */
 
 plugins {
+    // Apply the Shadow plugin to generate an uberjar
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+
     // Apply the Kotlin JVM plugin to add support for Kotlin.
     id 'org.jetbrains.kotlin.jvm' version '1.5.31'
 
@@ -46,15 +49,8 @@ application {
     mainClassName = 'com.newardassociates.pptbuilder.AppKt'
 }
 
-task uberJar(type: Jar) {
-    manifest {
-        attributes 'Main-Class': mainClassName
-    }
 
-    from sourceSets.main.output
-
-    dependsOn configurations.runtimeClasspath
-    from {
-        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
-    }
+shadowJar {
+    archiveClassifier = ''
+    mergeServiceFiles()
 }
