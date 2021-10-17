@@ -11,14 +11,31 @@ import com.newardassociates.pptbuilder.text.TextProcessor
 import kotlinx.cli.*
 import java.io.File
 import java.io.FileInputStream
+import java.net.URL
 import java.util.*
-import java.util.logging.LogManager
-import java.util.logging.Logger
-import java.util.logging.Level
+import java.util.jar.Attributes
+import java.util.jar.JarFile
+import java.util.jar.Manifest
+import java.util.logging.*
+import java.util.logging.Formatter
+
+class TerseFormatter : Formatter() {
+    override fun format(record: LogRecord?): String {
+        return "${record!!.level}: ${formatMessage(record)}\n"
+    }
+}
+
+fun getBuildTimestamp() : String {
+    val clazz: Class<*> = Parser::class.java
+    val jarFile = JarFile(File(clazz.protectionDomain.codeSource.location.toURI()).path)
+    val manifest = jarFile.manifest
+    val attributes = manifest.mainAttributes
+    return attributes.getValue("Build-Timestamp")
+}
 
 fun main(args: Array<String>) {
-    println("pptbuilder v0.9 (Build v.20211015)") // TODO replace with Build-Timestamp from manifest
-    println("------------------------------")
+    println("pptbuilder v0.9 (Build-Timestamp: ${getBuildTimestamp()})")
+    println("---------------------------------------------")
     val cliParser = ArgParser("pptbuilder")
 
     val input by cliParser.argument(ArgType.String, description = "Input file")
@@ -27,10 +44,10 @@ fun main(args: Array<String>) {
     val outputDirectory by cliParser.option(ArgType.String, fullName = "outputDir", shortName = "d",
             description = "Output directory into which to place the generated file").default("")
 
-    val verbosity by cliParser.option(ArgType.Choice(listOf("quiet", "warning", "info", "debug"), {it}),
+    val verbosity by cliParser.option(ArgType.Choice(listOf("quiet", "warning", "info", "debug"), { it }),
             fullName = "verbosity", shortName = "v",
             description = "How much logging to display").default("warning")
-    val format by cliParser.option(ArgType.Choice(listOf("pptx", "reveal", "slidy", "text", "nop"), {it}),
+    val format by cliParser.option(ArgType.Choice(listOf("pptx", "reveal", "slidy", "text", "nop"), { it }),
             fullName = "format", shortName = "f",
             description = "Output format to use").default("pptx")
     val template by cliParser.option(ArgType.String,
@@ -40,12 +57,17 @@ fun main(args: Array<String>) {
     cliParser.parse(args)
 
     // Configure LogManager according to verbosity flag
-    Logger.getLogger(::main.javaClass.packageName).level = when (verbosity) {
+    val logger = Logger.getGlobal() //Logger.getLogger(::main.javaClass.packageName)
+    logger.level = when (verbosity) {
         "quiet" -> Level.SEVERE
         "info" -> Level.INFO
         "debug" -> Level.FINE
         else -> Level.WARNING
     }
+    val handler = ConsoleHandler()
+    logger.addHandler(handler)
+    handler.formatter = TerseFormatter()
+    println("Configuring logging at ${logger.level} levels...")
 
     // Grab default properties from .pptbuilder.properties
     val properties = Properties()
@@ -90,6 +112,6 @@ fun main(args: Array<String>) {
         "slidy" -> SlidyProcessor(processorOptions)  // for HTML Slidy
         "text" -> TextProcessor(processorOptions)
         //"webslides" -> WebSlidesProcessor(processorOptions)  // for HTML WebSlides
-        else -> throw IllegalArgumentException("Unrecognized format: " + format.toString())
+        else -> throw IllegalArgumentException("Unrecognized format: ${format}")
     }).process(Parser(properties).parse(File(input)))
 }

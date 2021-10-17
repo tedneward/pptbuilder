@@ -26,20 +26,26 @@ abstract class Processor(val options : Options) {
 
     abstract fun write(outputFilename : String)
 
+    protected val footnotes = mutableMapOf<String, String>()
+
     open fun process(presentation : Presentation) {
         processPresentationNode(presentation)
         for (slide in presentation.slides) {
             when (slide) {
                 is Slide -> processSlide(slide)
                 is Section -> processSection(slide)
+                else -> logger.info("Unrecognized slide type: $slide")
             }
         }
+
+        processReferencesSection()
 
         write(options.outputFilename + (if (options.outputFilename.endsWith(processorExtension)) "" else ".$processorExtension"))
     }
 
     abstract fun processPresentationNode(presentation : Presentation)
     abstract fun processSection(section : Section)
+    open fun processReferencesSection() { }
 
     private val xpath: XPath = XPathFactory.newInstance().newXPath()
     private val codeXPath = xpath.compile(".//code")

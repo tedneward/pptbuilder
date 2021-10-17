@@ -1,12 +1,10 @@
 package com.newardassociates.pptbuilder.pptx
 
-import com.newardassociates.pptbuilder.Presentation
-import com.newardassociates.pptbuilder.Processor
-import com.newardassociates.pptbuilder.Section
-import com.newardassociates.pptbuilder.Slide
+import com.newardassociates.pptbuilder.*
 import com.newardassociates.pptbuilder.pptx.*
 import com.vladsch.flexmark.ast.*
 import com.vladsch.flexmark.ast.Code
+import com.vladsch.flexmark.ext.footnotes.Footnote
 import com.vladsch.flexmark.util.ast.NodeVisitor
 import com.vladsch.flexmark.util.ast.VisitHandler
 import org.apache.poi.sl.usermodel.AutoNumberingScheme
@@ -23,6 +21,7 @@ import java.io.FileOutputStream
 import java.net.URI
 import java.nio.file.Paths
 import java.util.*
+import java.util.logging.ConsoleHandler
 import java.util.logging.Logger
 import javax.xml.xpath.XPath
 import javax.xml.xpath.XPathConstants
@@ -119,7 +118,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
         val currentSlide = CodeSlide(deck, slide.title)
 
         logger.info("Title anchor: ${currentSlide.title.anchor}")
-        val titleAnchor = currentSlide.title.anchor
+        //val titleAnchor = currentSlide.title.anchor
 
         val childNodes = slide.node.childNodes
         for (nidx in 0 until childNodes.length) {
@@ -164,8 +163,8 @@ class PPTXProcessor(options : Options) : Processor(options) {
             val indentLevel = paragraphGeneratorStack.size - 1
             // -1 for the default paragraphGenerator
             paragraphGeneratorStack.push {
+                logger.info("Bulleted List! indent level $indentLevel")
                 val para = currentSlide.content.addNewTextParagraph()
-                para.isBullet = true
                 para.indentLevel = indentLevel
                 para
             }
@@ -184,7 +183,6 @@ class PPTXProcessor(options : Options) : Processor(options) {
             paragraphGeneratorStack.push {
                 logger.info("Ordered List! indent level $indentLevel")
                 val para = currentSlide.content.addNewTextParagraph()
-                para.isBullet = true //if (ol.delimiter == '*') true else false  // TEST TEST TEST
                 para.indentLevel = indentLevel
                 para.setBulletAutoNumber(AutoNumberingScheme.arabicPeriod, 1)
                 para
@@ -224,6 +222,13 @@ class PPTXProcessor(options : Options) : Processor(options) {
             val run = paragraphStack.peek()!!.addNewTextRun()
             run.isBold = true
             run.setText(em.childChars.unescape())
+        }))
+        visitor.addHandler(VisitHandler<Footnote>(Footnote::class.java, fun (fn : Footnote) {
+            logger.info("FOOTNOTE: ${fn.referenceOrdinal}, ${fn.reference} ${fn.footnoteBlock} (${fn})")
+            val run = paragraphStack.peek()!!.addNewTextRun()
+            run.isSuperscript = true
+            run.setText("[${fn.reference.unescape()}]")
+            footnotes[fn.reference.unescape()] = ""
         }))
 
         visitor.visit(slide.markdownBody)

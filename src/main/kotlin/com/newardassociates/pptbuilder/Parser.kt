@@ -1,10 +1,14 @@
 package com.newardassociates.pptbuilder
 
+import com.vladsch.flexmark.ext.footnotes.FootnoteExtension
 import com.vladsch.flexmark.util.data.MutableDataSet
+import com.vladsch.flexmark.util.misc.Extension
+import org.jetbrains.annotations.NotNull
 import org.xml.sax.InputSource
 import java.io.File
 import java.io.StringReader
 import java.util.*
+import java.util.logging.ConsoleHandler
 import java.util.logging.Logger
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPath
@@ -114,6 +118,9 @@ class Parser(val properties : Properties) {
     private fun parseNodes(nodes : XMLNodeList): List<Node> {
         val ast = mutableListOf<Node>()
         val mdParserOptions = MutableDataSet()
+            .set(MDParser.EXTENSIONS, arrayListOf(
+                FootnoteExtension.create()
+            ) as @NotNull Collection<Extension>)
         val mdParser = MDParser.builder(mdParserOptions).build()
 
         var sectionTitle = ""
@@ -143,7 +150,7 @@ class Parser(val properties : Properties) {
                     ast.add(Slide(title, node, mdParser.parse(node.textContent.trimIndent()), node.textContent, notesList))
                 }
                 "section" -> {
-                    // FUTURE: Can section slides have notes?
+                    // FUTURE: Can section slides have notes? Why not?
 
                     val attrsMap = node.attributes
                     sectionTitle = attrsMap.getNamedItem("title").nodeValue
@@ -155,6 +162,10 @@ class Parser(val properties : Properties) {
                 }
                 "slideset" -> {
                     logger.info("Parsing slideset")
+                    if (node.attributes.getNamedItem("xmlns:xi") != null) {
+                        if (node.attributes.getNamedItem("xmlns:xi")?.nodeValue != "http://www.w3.org/2001/XInclude" )
+                            logger.warning(">>> XInclude incorrect namespace reference!")
+                    }
                     ast.addAll(parseNodes(node.childNodes))
                     logger.info("End slideset")
                 }

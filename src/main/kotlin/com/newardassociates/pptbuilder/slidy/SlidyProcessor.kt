@@ -100,13 +100,13 @@ ${contactInfoString()}
     }
 
     override fun processSection(section: Section) {
-        outputString += """\n
+        outputString += """
         <div class="slide cover">
             <img src="http://www.w3.org/Talks/Tools/Slidy/keys.jpg" alt="Cover page images (keys)" class="cover" />
             <br clear="all" />
             <h1>${section.title}</h1>
             <!-- <h2>${section.subtitle ?: section.quote + " --" + section.attribution}</h2> -->
-        </div>\n
+        </div>
         """
     }
 
