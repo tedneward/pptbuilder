@@ -172,7 +172,8 @@ class PPTXProcessorTests {
 </presentation>
 """.trimIndent()
 
-        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleOrderedListContent")).process(Parser(Properties()).parse(xmlmd))
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxTitleOrderedListContent"))
+                .process(Parser(Properties()).parse(xmlmd))
     }
 
     @Test
@@ -213,7 +214,8 @@ class PPTXProcessorTests {
 </presentation>
 """.trimIndent()
 
-        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxLegacyCode")).process(Parser(Properties()).parse(xmlmd))
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxLegacyCode"))
+                .process(Parser(Properties()).parse(xmlmd))
     }
 
     @Test
@@ -245,7 +247,56 @@ class PPTXProcessorTests {
 </presentation>
 """.trimIndent()
 
-        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxLegacyCode")).process(Parser(Properties()).parse(xmlmd))
+        PPTXProcessor(Processor.Options(outputFilename = outPath + "pptxLegacyCodeNoTitle"))
+                .process(Parser(Properties()).parse(xmlmd))
+    }
+
+    @Test
+    fun pptxCodeBlockTest() {
+        val xmlmd = """
+<presentation xmlns:xi="http://www.w3.org/2001/XInclude">
+    <head>
+        <title>Busy Developer's Guide to|pptxLegacyCode</title>
+        <abstract>None</abstract>
+        <author><name>Ted Neward</name></author>
+        <audience>For any intermediate Java (2 or more years) audience</audience>
+        <category>Testing</category>
+        <category>Presentation</category>
+    </head>
+    
+    <section title="Section Slide" subtitle="Section subtitle" />
+<slide>
+* Maven ...
+    ```
+    <![CDATA[<dependency>
+      <groupId>org.python</groupId>
+      <artifactId>jython-slim</artifactId>
+      <version>2.7.2</version>
+    </dependency>]]>
+    ```
+</slide>
+
+<slide>
+* Maven ...
+    ```<![CDATA[
+    <dependency>
+      <groupId>org.python</groupId>
+      <artifactId>jython-slim</artifactId>
+      <version>2.7.2</version>
+    </dependency>]]>
+    ```
+* ... or Gradle dependency
+    ```
+    implementation 'org.python:jython-slim:2.7.2'
+    implementation 'org.python:jython-slim:2.7.2'
+    ```
+* ... because why not
+</slide>
+</presentation>
+""".trimIndent()
+
+        PPTXProcessor(Processor.Options(outputFilename = outPath + ::pptxCodeBlockTest.name))
+                .process(Parser(Properties()).parse(xmlmd))
     }
 
     @Test

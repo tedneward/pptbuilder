@@ -7,6 +7,7 @@ import com.vladsch.flexmark.ast.Code
 import com.vladsch.flexmark.ext.footnotes.Footnote
 import com.vladsch.flexmark.util.ast.NodeVisitor
 import com.vladsch.flexmark.util.ast.VisitHandler
+import org.apache.poi.hslf.blip.JPEG
 import org.apache.poi.sl.usermodel.AutoNumberingScheme
 import org.apache.poi.sl.usermodel.TextParagraph
 import org.apache.poi.xslf.usermodel.XMLSlideShow
@@ -27,6 +28,17 @@ import javax.xml.xpath.XPath
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
 import com.newardassociates.pptbuilder.pptx.Slide as pptxSlide
+
+/*
+Adding images to a slide:
+
+
+XMLSlideShow ppt = new XMLSlideShow();
+XSLFSlide slide = ppt.createSlide();
+byte[] pictureData = IOUtils.toByteArray(new FileInputStream("image.png"));
+XSLFPictureData pd = ppt.addPicture(pictureData, PictureData.PictureType.PNG);
+XSLFPictureShape pic = slide.createPicture(pd);
+ */
 
 /*
 Stack implementation on top of MutableList<T>
@@ -154,18 +166,24 @@ class PPTXProcessor(options : Options) : Processor(options) {
 
         // This current implementation means that headings can't have anything other
         // than raw text as children--all formatting will be ignored
-        visitor.addHandler(VisitHandler<Heading>(Heading::class.java, fun (head : Heading) {
+        visitor.addHandler(VisitHandler(Heading::class.java, fun (head : Heading) {
             currentSlide.header(head.childChars.unescape())
         }))
 
         // Bulleted lists, bulleted list items
-        visitor.addHandler(VisitHandler<BulletList>(BulletList::class.java, fun (bl : BulletList) {
+        visitor.addHandler(VisitHandler(BulletList::class.java, fun (bl : BulletList) {
             val indentLevel = paragraphGeneratorStack.size - 1
             // -1 for the default paragraphGenerator
             paragraphGeneratorStack.push {
                 logger.info("Bulleted List! indent level $indentLevel")
                 val para = currentSlide.content.addNewTextParagraph()
                 para.indentLevel = indentLevel
+
+                // '*' should do a "dot", but "-" historically (for me) meant "no bullet"
+                if (bl.openingMarker == '-') {
+                    para.bulletCharacter = " "
+                }
+
                 para
             }
             currentSlide.newList()
@@ -177,7 +195,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
         }))
 
         // Ordered lists, ordered list items
-        visitor.addHandler(VisitHandler<OrderedList>(OrderedList::class.java, fun (ol : OrderedList) {
+        visitor.addHandler(VisitHandler(OrderedList::class.java, fun (ol : OrderedList) {
             val indentLevel = paragraphGeneratorStack.size - 1
             // -1 for the default paragraphGenerator
             paragraphGeneratorStack.push {
@@ -196,34 +214,58 @@ class PPTXProcessor(options : Options) : Processor(options) {
         }))
 
         // There's always a paragraph wrapping whatever text we see
-        visitor.addHandler(VisitHandler<Paragraph>(Paragraph::class.java, fun(p : Paragraph) {
+        visitor.addHandler(VisitHandler(Paragraph::class.java, fun(p : Paragraph) {
+            logger.info(">>> Paragraph")
             paragraphStack.push((paragraphGeneratorStack.peek()!!)())
 
             visitor.visitChildren(p)
 
+            logger.info("<<< Paragraph")
             paragraphStack.pop()
         }))
-        visitor.addHandler(VisitHandler<Text>(Text::class.java, fun (t : Text) {
+        visitor.addHandler(VisitHandler(FencedCodeBlock::class.java, fun (fcb : FencedCodeBlock) {
+            logger.info("FencedCodeBlock contentLines: ${fcb.contentLines}")
+
+            if (currentSlide.content.textParagraphs.size > 0) {
+                // Now what?
+                logger.info("FencedCodeBlock textHeight: ${currentSlide.content.textHeight}")
+            }
+
+            val para = currentSlide.content.addNewTextParagraph()
+            logger.info("para: ${para.parentShape.anchor}")
+            para.indentLevel = 0
+            para.isBullet = false
+            //para.parentShape.fillColor = Color.BLACK
+
+            fcb.contentLines.forEach { line ->
+                val run = para.addNewTextRun()
+                run.fontFamily = "Courier New"
+                run.fontSize = 13.0
+                //run.setFontColor(Color.WHITE)
+                run.setText(line.unescape())
+            }
+        }))
+        visitor.addHandler(VisitHandler(Text::class.java, fun (t : Text) {
             logger.info("TextVisitor, ${paragraphStack}")
             val run = paragraphStack.peek()!!.addNewTextRun()
             run.setText(t.chars.unescape())
         }))
-        visitor.addHandler(VisitHandler<Emphasis>(Emphasis::class.java, fun (em : Emphasis) {
+        visitor.addHandler(VisitHandler(Emphasis::class.java, fun (em : Emphasis) {
             val run = paragraphStack.peek()!!.addNewTextRun()
             run.isItalic = true
             run.setText(em.childChars.unescape())
         }))
-        visitor.addHandler(VisitHandler<Code>(Code::class.java, fun (em : Code) {
+        visitor.addHandler(VisitHandler(Code::class.java, fun (em : Code) {
             val run = paragraphStack.peek()!!.addNewTextRun()
             run.fontFamily = "Courier New"
             run.setText(em.childChars.unescape())
         }))
-        visitor.addHandler(VisitHandler<StrongEmphasis>(StrongEmphasis::class.java, fun (em : StrongEmphasis) {
+        visitor.addHandler(VisitHandler(StrongEmphasis::class.java, fun (em : StrongEmphasis) {
             val run = paragraphStack.peek()!!.addNewTextRun()
             run.isBold = true
             run.setText(em.childChars.unescape())
         }))
-        visitor.addHandler(VisitHandler<Footnote>(Footnote::class.java, fun (fn : Footnote) {
+        visitor.addHandler(VisitHandler(Footnote::class.java, fun (fn : Footnote) {
             logger.info("FOOTNOTE: ${fn.referenceOrdinal}, ${fn.reference} ${fn.footnoteBlock} (${fn})")
             val run = paragraphStack.peek()!!.addNewTextRun()
             run.isSuperscript = true
