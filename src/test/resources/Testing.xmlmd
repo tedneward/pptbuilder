@@ -30,6 +30,17 @@
     <xi:include href="Content/section.xmlmd" />
 
     <slide>
+    # Here is some text that contains HTML tag-sensitive text
+
+    &lt;bold>Should be between bold tags&lt;/bold>
+    </slide>
+    <slide><![CDATA[
+    # HTML tag-sensitive text inside a CDATA directive
+
+    <bold>Should be between bold tags</bold>
+    ]]></slide>
+
+    <slide>
     # Slide with notes test
     <notes>These are some notes to go with this slide. Let's see if they make it all the way through.</notes>
     * First
