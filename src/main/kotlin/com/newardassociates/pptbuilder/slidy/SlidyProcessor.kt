@@ -68,8 +68,8 @@ class SlidyProcessor(options: Options) : Processor(options) {
 <head>
     <title>${presentation.title.replace("|", " ")}</title>
     <meta name="copyright" content="Copyright &#169; ${SimpleDateFormat("yyyy").format(Date.from(Instant.now()))} ${if (presentation.affiliation.isEmpty()) presentation.author else presentation.affiliation}" /> 
-    <link rel="stylesheet" type="text/css" media="screen, projection, print" href="http://www.w3.org/Talks/Tools/Slidy2/styles/slidy.css" /> 
-    <script src="http://www.w3.org/Talks/Tools/Slidy2/scripts/slidy.js" charset="utf-8" type="text/javascript"></script> 
+    <link rel="stylesheet" type="text/css" media="screen, projection, print" href="https://www.w3.org/Talks/Tools/Slidy2/styles/slidy.css" /> 
+    <script src="https://www.w3.org/Talks/Tools/Slidy2/scripts/slidy.js" charset="utf-8" type="text/javascript"></script> 
     ${templateScript}
 </head>
 <body>
