@@ -123,7 +123,7 @@
     ```
 
     Here is some imported code from `console.js`:
-    ```{language=javascript src=Content/code/console.js}
+    ```{language=javascript src=Content/code/markedconsole.js marker=console}
     ```
     </slide>
     -->

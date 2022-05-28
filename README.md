@@ -18,27 +18,39 @@ I would like the tool to parse XMLMD into an AST, then transform that AST into a
 I also want a tool (not necessarily the same one) that knows how to parse the legacy format and spit out XMLMD equivalents, for easy porting.
 
 ## Tech stack
-I need a Markdown library that doesn't go from Markdown straight to HTML; I need it to parse into an intermediate format that allows me to do the actual output. Beyond that, this could be done in just about any language/platform stack that allows me to do this headless (for CI/CD purposes).
+I needed a Markdown library that doesn't go from Markdown straight to HTML; I needed it to parse into an intermediate format that allows me to do the actual output. Beyond that, this could be done in just about any language/platform stack that allows me to do this headless (for CI/CD purposes).
 
-Java seems to be the best solution; it has an XIncluding XML parser, PPTX support (in the Apache POI libraries) and Markdown libraries (Flexmark-Java) that I need. I can write it one of many different Java languages, a la Java, Groovy, Kotlin, Scala, even Clojure if I really feel like punishing myself. ;-) Thinking Kotlin for now--seems to be the best "Java++" I can work with. **Update:** Chose Kotlin, no regrets.
+Something JVM-based seemed to be the best solution; it has an XIncluding XML parser, PPTX support (in the Apache POI libraries) and Markdown libraries (Flexmark-Java) that I need. I could write it one of many different languages, a la Java, Groovy, Kotlin, Scala, even Clojure if I really feel like punishing myself. ;-) Chose Kotlin--seems to be the best "Java++" I can work with.
 
 ## Feature backlog
+
+### XMLMD syntax/semantics
+* Allow <code>/```-fenced blocks to use URLs (for reference to Demo GitHub projects, rather than embedding all the code in this repo)
+
+* Provide "property" support, to customize slide decks with values (mostly to choose whether to include certain slides or sections or not)?
+
+* Image imports/references
+    * As a tag? Or as Markdown?
+    * Does <slide> want/need to incorporate images as part of its layout somehow? A la specific slide tags for each layout? ("pzenslide", "twocolslide", ...?)
+
+* Chart/graph imports/references
+    * Use MermaidJS to generate 
 
 ### Infrastructure
 * Create a diagnostic log of items happening (with verbosity levels)
 
-* Fix lazyinit titleonly problem with PPT
-
-* Provide "property" support, to customize slide decks with values (mostly to choose whether to include certain slides or sections or not)?
-
 * Work off of template files as starting points for processed output; use Freemarker for slidy/reveal templates?
 
-### Markdown
-* Footnotes (`[^1]` or `[^devguide]`) should be collected into a slide section at the end of the deck; references should be normalized by footnote tag
+* Use GraalVM to run? (Allows use of JavaScript, Python, ....)
 
-* Fenced code blocks should be in separate text boxes
+* Host the whole generation process inside a Docker image (for easier config mgmt)?
+
+### Markdown
+* Fenced code blocks should be in separate text boxes (?)
 
 * Support "*" vs "-" bullet list differences (bullet vs no-bullet)
+
+* Footnotes (`[^1]` or `[^devguide]`) should be collected into a slide section at the end of the deck; references should be normalized by footnote tag; any footnoted text *not* met by a footnote definition should yield a warning? error?
 
 * Title slide contact info should have icons/emojis/whatever for email/Twitter/LinkedIn/etc
 
@@ -50,6 +62,14 @@ Java seems to be the best solution; it has an XIncluding XML parser, PPTX suppor
     * LinkedIn URLs look like: https://www.linkedin.com/in/tedneward/
     * Twitter URLs look like: https://twitter.com/tedneward
     * Github URLs look like: https://github.com/tedneward
+
+### PPTX improvements/fixes
+* Fix bug around code-block incorrect bounding box size calculations
+
+* Fix lazyinit titleonly problem with PPT
+
+### Slidy improvements/fixes
+* Allow -t flag to specify stylesheet to use for customization
 
 ## Sample "~/.pptbuilder.properties" file
 
