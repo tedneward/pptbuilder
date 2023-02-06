@@ -182,6 +182,32 @@ class SlidyProcessorTests {
     }
 
     @Test
+    fun slidyURLLegacyCode() {
+        val xmlmd =""" 
+            <presentation>
+                <head>
+                    <title>Title!</title>
+                    <abstract>Abstract!</abstract>
+                    <audience>Audience!</audience>
+                </head>
+                <slide title="Code from URL test">
+                    <code src="slidesamples/legacy/Testing/App.java" />
+                </slide>
+                <slide title="Code from URL test">
+                    <code src="https://raw.githubusercontent.com/tedneward/pptbuilder/master/slidesamples/legacy/Testing/App.java" />
+                </slide>
+                <slide title="Code from URL test">
+                    <code src="slidesamples/legacy/Testing/App.java" marker="main" />
+                </slide>
+                <slide title="Code from URL test">
+                    <code src="https://raw.githubusercontent.com/tedneward/pptbuilder/master/slidesamples/legacy/Testing/App.java" marker="main" />
+                </slide>
+            </presentation>
+        """.trimIndent()
+        SlidyProcessor(Processor.Options(outputFilename = outPath + "slidyURLLegacyCode")).process(Parser(Properties()).parse(xmlmd))
+    }
+
+    @Test
     fun slidyLegacyXIncludedCode() {
         SlidyProcessor(Processor.Options(outputFilename = outPath + "slidyLegacyXIncludedCode"))
                 .process(Parser(Properties()).parse(File("src/test/resources/legacyXIncludedCode.xmlmd")))

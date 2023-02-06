@@ -2,9 +2,10 @@ package com.newardassociates.pptbuilder
 
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
-import java.io.File
-import java.io.FileOutputStream
+import java.io.*
 import java.net.URI
+import java.net.URL
+import java.net.URLConnection
 import java.nio.file.Paths
 import java.util.logging.Logger
 import javax.xml.xpath.XPath
@@ -73,36 +74,56 @@ abstract class Processor(val options : Options) {
             // won't be to correct; grab the baseURI of the xinclude'd document to use
             // that as a starting point for finding the file in question
             val src = node.attributes.getNamedItem("src").textContent
-            val srcfile = if (node.baseURI != null) {
-                Paths.get(URI.create(node.baseURI)).parent.resolve(src).toFile()
-            } else {
-                File(src)
-            }
+            val filetext = mutableListOf<String>()
             val marker = node.attributes.getNamedItem("marker")?.textContent
-            logger.info("Importing code from ${srcfile}${if (marker != null) " using marker '$marker'" else ""}")
+            logger.info("Importing code from ${src}${if (marker != null) " using marker '$marker'" else ""}")
 
-            if (!srcfile.exists()) {
-                logger.warning("${srcfile.absolutePath} does not appear to exist")
-                return "<<${srcfile.absolutePath} NOT FOUND>>"
+            if (src.startsWith("http://") || src.startsWith("https://")) {
+                // It's a URL, not a file path
+                val url = URL(src)
+                try {
+                    val reader = BufferedReader(InputStreamReader(url.openStream()))
+                    reader.lines().forEach { filetext.add(it) }
+                }
+                catch (ioEx: IOException) {
+                    logger.warning("${url} does not appear to exist")
+                    return "<<${url} NOT FOUND>>"
+                }
             }
             else {
-                val text = mutableListOf<String>()
-                if (marker == null) {
-                    srcfile.forEachLine { text.add(it) }
+                // It's a file path
+                val srcfile = if (node.baseURI != null) {
+                    Paths.get(URI.create(node.baseURI)).parent.resolve(src).toFile()
                 } else {
-                    var capturing = false
-                    srcfile.forEachLine {
-                        if (it.contains("{{## END $marker ##}}"))
-                            capturing = false
-                        if (capturing)
-                            text.add(if (it == "") "    " else it)
-                        if (it.contains("{{## BEGIN $marker ##}}"))
-                            capturing = true
-                    }
+                    File(src)
                 }
-                logger.info("Extracted ${text} for slide")
-                return text.joinToString("\n")
+
+                if (!srcfile.exists()) {
+                    logger.warning("${srcfile.absolutePath} does not appear to exist")
+                    return "<<${srcfile.absolutePath} NOT FOUND>>"
+                }
+                else {
+                    srcfile.forEachLine { filetext.add(it) }
+                }
             }
+
+            val text = mutableListOf<String>()
+            if (marker == null) {
+                filetext.forEach { text.add(it) }
+            } else {
+                var capturing = false
+                filetext.forEach {
+                    if (it.contains("{{## END $marker ##}}"))
+                        capturing = false
+                    if (capturing)
+                        text.add(if (it == "") "    " else it)
+                    if (it.contains("{{## BEGIN $marker ##}}"))
+                        capturing = true
+                }
+            }
+            logger.info("Extracted ${text} for slide")
+            return text.joinToString("\n")
+
         } else {
             // Using what's inside the code tag itself
             logger.info("Using body of code tag")

@@ -205,4 +205,22 @@ This is a second.
         val ast = ASTProcessor(Processor.Options(outputFilename = ""))
         ast.process(preso)
     }
+    @Test
+    fun codeSlideURLTest() {
+        val preso = parser.parse(""" 
+            <presentation>
+                <head>
+                    <title>Title!</title>
+                    <abstract>Abstract!</abstract>
+                    <audience>Audience!</audience>
+                </head>
+                <slide title="Code from URL test">
+                    <code src="slidesamples/legacy/Testing/App.java" />
+                </slide>
+                <slide title="Code from URL test">
+                    <code src="https://raw.githubusercontent.com/tedneward/pptbuilder/master/slidesamples/legacy/Testing/App.java" />
+                </slide>
+            </presentation>
+        """.trimIndent())
+    }
 }
