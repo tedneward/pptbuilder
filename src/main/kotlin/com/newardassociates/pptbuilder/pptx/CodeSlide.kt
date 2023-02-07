@@ -1,6 +1,7 @@
 package com.newardassociates.pptbuilder.pptx
 
 import org.apache.poi.sl.usermodel.TextParagraph
+import org.apache.poi.sl.usermodel.TextShape
 import java.awt.Color
 import java.awt.geom.Rectangle2D
 import java.util.logging.Logger
@@ -16,7 +17,6 @@ class CodeSlide(deck: Deck, titleText: String) : TitleOnlySlide(deck, titleText)
 
         val newShape = slide.createTextBox()
         newShape.anchor = Rectangle2D.Double(currentAnchor.x, currentAnchor.y, currentAnchor.width, 0.0)
-        logger.fine("Newshape anchor = ${newShape.anchor}")
         newShape.clearText()
 
         val paragraph = newShape.addNewTextParagraph()
@@ -33,8 +33,11 @@ class CodeSlide(deck: Deck, titleText: String) : TitleOnlySlide(deck, titleText)
         logger.fine("Adding code block; text='$code'")
 
         val newShape = slide.createTextBox()
+
+        val numCRs = code.split(" \n\t").size
+        logger.fine("codeblock has $numCRs line breaks")
+
         newShape.anchor = Rectangle2D.Double(currentAnchor.x, currentAnchor.y, currentAnchor.width, 0.0)
-        logger.fine("Newshape anchor = ${newShape.anchor}")
         newShape.clearText()
 
         val paragraph = newShape.addNewTextParagraph()
@@ -48,6 +51,7 @@ class CodeSlide(deck: Deck, titleText: String) : TitleOnlySlide(deck, titleText)
         run.setFontColor(Color.WHITE)
         newShape.fillColor = Color.BLACK
         run.setText(code)
+        newShape.textAutofit = TextShape.TextAutofit.SHAPE
         newShape.resizeToFitText()
 
         currentAnchor.y += newShape.anchor.height + 5.0

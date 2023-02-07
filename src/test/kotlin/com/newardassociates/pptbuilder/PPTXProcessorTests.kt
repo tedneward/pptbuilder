@@ -211,6 +211,17 @@ class PPTXProcessorTests {
         <text>Marked code</text>
         <code language="js" src="src/test/resources/Content/code/markedconsole.js" marker="console" />
     </slide>
+    <slide title="Another code slide">
+        <text>Caption</text>
+        <code language="js">function() {
+    console.out("This is a really long code section")
+    console.out("Designed to see if the autoshape stuff will work")
+    console.out("Because if it doesn't I'm not sure what to do")
+    console.out("So this really needs to work")
+    console.out("Don't let me down Apache POI")
+}
+</code>
+    </slide>
 </presentation>
 """.trimIndent()
 

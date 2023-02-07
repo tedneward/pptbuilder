@@ -1,6 +1,7 @@
 package com.newardassociates.pptbuilder
 
 import com.newardassociates.pptbuilder.pptx.*
+import org.apache.poi.xssf.usermodel.TextAutofit
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.test.BeforeTest
@@ -19,6 +20,39 @@ class PPTBuilderTests {
     @BeforeTest
     fun setupDeck() {
         deck = Deck()
+    }
+
+    @Test
+    fun rawXSLFTextRunTest() {
+        val ppt = org.apache.poi.xslf.usermodel.XMLSlideShow();
+
+        val slide1 = ppt.createSlide();
+        val shape1 = slide1.createTextBox();
+        val anchor = java.awt.Rectangle(170, 100, 300, 100);
+        shape1.setAnchor(anchor);
+
+        val p1 = shape1.addNewTextParagraph();
+        val r1 = p1.addNewTextRun();
+        r1.setText(
+"""The Apache POI Project's mission is to create and maintain
+Java APIs for manipulating various file formats based upon the Office Open
+XML standards (OOXML) and Microsoft's OLE 2 Compound Document format
+(OLE2). In short, you can read and write MS Excel files using Java. In
+addition, you can read and write MS Word and MS PowerPoint files using
+Java. Apache POI is your Java Excel solution (for Excel 97-2008). We have a
+complete API for porting other OOXML and OLE2 formats and welcome others to
+participate.OLE2 files include most Microsoft Office files such as XLS,
+DOC, and PPT as well as MFC serialization API based file formats. Office
+OpenXML Format is the new standards based XML file format found in
+Microsoft Office 2007 and 2008. This includes XLSX, DOCX and PPTX.
+Microsoft opened the specifications to this format in October 2007. We
+would welcome contributions.""");
+
+        shape1.setTextAutofit(org.apache.poi.sl.usermodel.TextShape.TextAutofit.NORMAL);
+
+        val out = FileOutputStream(outPath + "Bug55391.pptx");
+        ppt.write(out);
+        out.close();
     }
 
     @Test

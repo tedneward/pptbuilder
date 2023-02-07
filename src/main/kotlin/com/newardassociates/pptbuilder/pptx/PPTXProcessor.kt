@@ -32,7 +32,6 @@ import com.newardassociates.pptbuilder.pptx.Slide as pptxSlide
 /*
 Adding images to a slide:
 
-
 XMLSlideShow ppt = new XMLSlideShow();
 XSLFSlide slide = ppt.createSlide();
 byte[] pictureData = IOUtils.toByteArray(new FileInputStream("image.png"));
@@ -161,7 +160,6 @@ class PPTXProcessor(options : Options) : Processor(options) {
         }
 
         // Process slide notes
-
         val visitor = NodeVisitor()
 
         // This current implementation means that headings can't have anything other
@@ -224,7 +222,41 @@ class PPTXProcessor(options : Options) : Processor(options) {
             paragraphStack.pop()
         }))
         visitor.addHandler(VisitHandler(FencedCodeBlock::class.java, fun (fcb : FencedCodeBlock) {
+            // TODO: Check for 'src' attribute, import code from the relative URL specified
+            if (fcb.info.isNotEmpty) {
+                logger.info("FencedCodeBlock found info! ${fcb.info}")
+            }
+            // else {
+            //    (the rest of the handler goes here)
+            // }
+
             logger.info("FencedCodeBlock contentLines: ${fcb.contentLines}")
+
+            /*
+            From CodeSlide.addCodeBlock():
+        val newShape = slide.createTextBox()
+        newShape.anchor = Rectangle2D.Double(currentAnchor.x, currentAnchor.y, currentAnchor.width, 0.0)
+        newShape.textAutofit = TextShape.TextAutofit.NONE
+        logger.fine("Newshape anchor = ${newShape.anchor}")
+        newShape.clearText()
+
+        val paragraph = newShape.addNewTextParagraph()
+        paragraph.setBulletStyle() // omit bullets
+        paragraph.fontAlign = TextParagraph.FontAlign.TOP
+
+        val run = paragraph.addNewTextRun()
+        run.fontFamily = "Consolas"
+        run.fontSize = 14.0
+        run.isBold = false
+        run.setFontColor(Color.WHITE)
+        newShape.fillColor = Color.BLACK
+        run.setText(code)
+        val codeRect = newShape.resizeToFitText()
+        logger.fine("Adding code block; after resize codeRect = ${codeRect}")
+
+        currentAnchor.y += codeRect.height + 5.0
+        logger.fine("currentAnchor is now ${currentAnchor}")
+             */
 
             if (currentSlide.content.textParagraphs.size > 0) {
                 // Now what?
@@ -235,13 +267,11 @@ class PPTXProcessor(options : Options) : Processor(options) {
             logger.info("para: ${para.parentShape.anchor}")
             para.indentLevel = 0
             para.isBullet = false
-            //para.parentShape.fillColor = Color.BLACK
 
             fcb.contentLines.forEach { line ->
                 val run = para.addNewTextRun()
-                run.fontFamily = "Courier New"
-                run.fontSize = 13.0
-                //run.setFontColor(Color.WHITE)
+                run.fontFamily = "Consolas"
+                run.fontSize = 14.0
                 run.setText(line.unescape())
             }
         }))

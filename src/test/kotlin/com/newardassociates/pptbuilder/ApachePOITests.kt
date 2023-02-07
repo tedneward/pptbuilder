@@ -157,6 +157,45 @@ class ApachePOITests {
         FileOutputStream(outPath + "codeSlideExploration.pptx").use { out -> ppt.write(out) }
     }
 
+    @Test
+    fun textRunAutofitTest() {
+        val ppt = XMLSlideShow()
+
+        val slide1 = ppt.createSlide()
+        val shape1 = slide1.createTextBox()
+        println("shape1.paragraphs = ${shape1.textParagraphs.size}")
+        //shape1.textParagraphs.removeAt(0) // maybe the extra paragraph is throwing things off?
+        val anchor = Rectangle(170, 100, 300, 100)
+        shape1.anchor = anchor
+
+        val p1 = shape1.addNewTextParagraph()
+        println("shape1.paragraphs = ${shape1.textParagraphs.size}")
+        val r1 = p1.addNewTextRun()
+        r1.setText(
+            """The Apache POI Project's mission is to create and maintain
+Java APIs for manipulating various file formats based upon the Office Open
+XML standards (OOXML) and Microsoft's OLE 2 Compound Document format
+(OLE2). In short, you can read and write MS Excel files using Java. In
+addition, you can read and write MS Word and MS PowerPoint files using
+Java. Apache POI is your Java Excel solution (for Excel 97-2008). We have a
+complete API for porting other OOXML and OLE2 formats and welcome others to
+participate.OLE2 files include most Microsoft Office files such as XLS,
+DOC, and PPT as well as MFC serialization API based file formats. Office
+OpenXML Format is the new standards based XML file format found in
+Microsoft Office 2007 and 2008. This includes XLSX, DOCX and PPTX.
+Microsoft opened the specifications to this format in October 2007. We
+would welcome contributions.""");
+        println("shape1.anchor = ${shape1.anchor} ")
+
+        shape1.textAutofit = org.apache.poi.sl.usermodel.TextShape.TextAutofit.NORMAL
+        val resizedRect = shape1.resizeToFitText()
+        println("resizedRect = $resizedRect")
+        shape1.anchor = resizedRect
+        println("shape1.anchor = ${shape1.anchor}")
+
+        FileOutputStream(outPath + "Bug55391.pptx").use { out -> ppt.write(out) }
+    }
+
     @Test fun createCodeBlocks() {
         val ppt = XMLSlideShow()
 
