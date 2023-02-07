@@ -1,8 +1,13 @@
 <slideset>
 
-    <slide title="Code reference from XInclude">
-        <text>Code should be imported</text>
-        <code src="code/console.js" />
-    </slide>
+<slide title="Code reference from XInclude">
+    <text>Code should be imported</text>
+    <code src="code/console.js" />
+</slide>
+
+<slide title="Code reference using Markdown">
+``` {src=code/markedconsole.js marker=console language=js}
+```
+</slide>
 
 </slideset>

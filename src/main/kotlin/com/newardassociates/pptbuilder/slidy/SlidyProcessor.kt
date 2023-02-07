@@ -57,119 +57,105 @@ class SlidyProcessor(options: Options) : Processor(options) {
                 }
             }
 
-            return contactInfoLines.joinToString("\n")
+            return contactInfoLines.joinToString(" | ")
         }
 
+        val templateScript = if (options.templateFile != "") "<link rel=\"stylesheet\" href=\"${options.templateFile}\" type=\"text/css\" />" else ""
         outputString += """
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"> 
-    <head>
-        <title>${presentation.title.replace("|", " ")}</title>
-        <meta name="author" content="${presentation.author}" />
-        <meta name="copyright" content="Copyright &#169; ${SimpleDateFormat("yyyy").format(Date.from(Instant.now()))} ${if (presentation.affiliation.isEmpty()) presentation.author else presentation.affiliation}" /> 
-        <meta name="description" content="${presentation.abstract}" />
-        <meta name="keywords" content="${presentation.keywords.joinToString(",")}" />
+<head>
+    <title>${presentation.title.replace("|", " ")}</title>
+    <meta name="copyright" content="Copyright &#169; ${SimpleDateFormat("yyyy").format(Date.from(Instant.now()))} ${if (presentation.affiliation.isEmpty()) presentation.author else presentation.affiliation}" /> 
+    <link rel="stylesheet" type="text/css" media="screen, projection, print" href="https://www.w3.org/Talks/Tools/Slidy2/styles/slidy.css" /> 
+    <script src="https://www.w3.org/Talks/Tools/Slidy2/scripts/slidy.js" charset="utf-8" type="text/javascript"></script> 
+    ${templateScript}
+</head>
+<body>
 
-        <link rel="stylesheet" type="text/css" media="screen, projection" href="http://www.w3.org/Talks/Tools/Slidy/show.css" />
-        <link rel="stylesheet" type="text/css" media="print" href="http://www.w3.org/Talks/Tools/Slidy/print.css" />
-
-        <!-- TODO: Use custom stylesheets -->
-        <link rel="stylesheet" type="text/css" media="screen, projection" href="http://www.w3.org/Talks/Tools/Slidy/w3c-blue.css" />
-        <script src="http://www.w3.org/Talks/Tools/Slidy/slidy.js" type="text/javascript"></script>
-        <style type="text/css">
-pre { color: rgb(220,220,220); font-family: "Lucida Console", Courier, monospace; font-size: 80%; font-weight: bold; line-height: 120%; }
-        </style>
-    </head>
-    
-    <body>
-        <!-- TODO: Replace the background with my own design -->
-        <div class="background">
-            <img id="head-icon" alt="graphic with four colored squares" src="http://www.w3.org/Talks/Tools/Slidy/icon-blue.png" align="left" />
-            <object id="head-logo" title="W3C logo" type="image/svg+xml" data="http://www.w3.org/Talks/Tools/Slidy/w3c-logo.svg">
-                <img alt="W3C logo" id="head-logo-fallback" src="http://www.w3.org/Talks/Tools/Slidy/w3c-logo-blue.gif" align="right"/>
-            </object>
-        </div>
-        <div class="slide cover">
-            <img src="http://www.newardassociates.com/assets/img/javapolic.jpg" alt="Cover page images" class="cover" />
-            <br clear="all" />
-            <h1>${presentation.title.replace("|", "\n")}</h1>
-            <p>
-${contactInfoString()}
-            </p>
-        </div>
-        """
+<div class="slide cover">
+    <h1>${presentation.title.replace("|", "\n")}</h1>
+    <p>${contactInfoString()}</p>
+</div>
+"""
     }
 
     override fun processSection(section: Section) {
         outputString += """
-        <div class="slide cover">
-            <img src="http://www.w3.org/Talks/Tools/Slidy/keys.jpg" alt="Cover page images (keys)" class="cover" />
-            <br clear="all" />
-            <h1>${section.title}</h1>
-            <!-- <h2>${section.subtitle ?: section.quote + " --" + section.attribution}</h2> -->
-        </div>
-        """
+<div class="slide cover">
+    <h1>${section.title}</h1>
+    <h2>${section.subtitle ?: (section.quote + " --" + section.attribution)}</h2>
+</div>
+"""
     }
 
     override fun processContentSlide(slide: Slide) {
         logger.info("Creating content slide for $slide")
 
-        outputString += "\n        <div class=\"slide\">\n            <h1>${slide.title}</h1>\n"
+        outputString += "\n<div class=\"slide\">\n<h1>${slide.title}</h1>\n"
 
         val visitor = NodeVisitor()
 
         // This current implementation means that headings can't have anything other
         // than raw text as children--all formatting will be ignored
         visitor.addHandler(VisitHandler<Heading>(Heading::class.java, fun (head : Heading) {
-            outputString += "            <h2>${head.text}</h2>\n"
+            outputString += "<h2>${head.text}</h2>\n"
         }))
 
-        visitor.addHandler(VisitHandler<BulletList>(BulletList::class.java, fun (bl : BulletList) {
+        visitor.addHandler(VisitHandler(BulletList::class.java, fun (bl : BulletList) {
             outputString += "<ul>\n"
             visitor.visitChildren(bl)
             outputString += "</ul>\n"
         }))
-        visitor.addHandler(VisitHandler<OrderedList>(OrderedList::class.java, fun (ol : OrderedList) {
+        visitor.addHandler(VisitHandler(OrderedList::class.java, fun (ol : OrderedList) {
             outputString += "<ol>\n"
             visitor.visitChildren(ol)
             outputString += "</ol>\n"
         }))
-        visitor.addHandler(VisitHandler<ListItem>(ListItem::class.java, fun (li : ListItem) {
+        visitor.addHandler(VisitHandler(ListItem::class.java, fun (li : ListItem) {
             outputString += "<li>"
             visitor.visitChildren(li)
             outputString += "</li>\n"
         }))
-        visitor.addHandler(VisitHandler<Paragraph>(Paragraph::class.java, fun(p : Paragraph) {
+        visitor.addHandler(VisitHandler(Paragraph::class.java, fun(p : Paragraph) {
             outputString += "<p>\n"
             visitor.visitChildren(p)
             outputString += "</p>\n"
         }))
-        visitor.addHandler(VisitHandler<Emphasis>(Emphasis::class.java, fun (em : Emphasis) {
+        visitor.addHandler(VisitHandler(Emphasis::class.java, fun (em : Emphasis) {
             outputString += "<em>"
             visitor.visitChildren(em)
             outputString += "</em>"
         }))
-        visitor.addHandler(VisitHandler<Code>(Code::class.java, fun (em : Code) {
+        visitor.addHandler(VisitHandler(Code::class.java, fun (em : Code) {
             outputString += "<code>"
             visitor.visitChildren(em)
             outputString += "</code>"
         }))
-        visitor.addHandler(VisitHandler<StrongEmphasis>(StrongEmphasis::class.java, fun (em : StrongEmphasis) {
+        visitor.addHandler(VisitHandler(StrongEmphasis::class.java, fun (em : StrongEmphasis) {
             outputString += "<strong>"
             visitor.visitChildren(em)
             outputString += "</strong>"
         }))
-        visitor.addHandler(VisitHandler<Text>(Text::class.java, fun (t : Text) {
+        visitor.addHandler(VisitHandler(Text::class.java, fun (t : Text) {
             outputString += t.chars.unescape()
         }))
 
         visitor.visit(slide.markdownBody)
 
-        outputString += "        </div>\n"
+        outputString += "</div>\n"
     }
 
     override fun processLegacyCodeSlide(slide: Slide) {
+        fun escapeHTMLSensitiveChars(string : String) : String {
+            return string.replace("&", "&amp;").
+                replace("<", "&lt;")
+        }
+
         logger.info("Creating legacy code slide for $slide")
-        outputString += "\n        <div class=\"slide\">\n            <h1>${slide.title}</h1>\n"
+        outputString += "<div class=\"slide\">\n"
+        outputString += "<h1>${slide.title}</h1>\n"
 
         val childNodes = slide.node.childNodes
         for (nidx in 0 until childNodes.length) {
@@ -177,14 +163,14 @@ ${contactInfoString()}
             when (node.nodeName) {
                 "text" -> {
                     logger.info("Handling text section: " + node.textContent)
-                    outputString += "            <p>${node.textContent}</p>"
+                    outputString += "<p>${escapeHTMLSensitiveChars(node.textContent)}</p>"
                 }
                 "code" -> {
                     logger.info("Handling code section: " + node.textContent)
-                    outputString += "            <pre style=\"background-color:black\">\n${importCode(node)}\n</pre>"
+                    outputString += "<pre>\n${escapeHTMLSensitiveChars(importCode(node))}\n</pre>"
                 }
             }
         }
-        outputString += "\n        </div>\n"
+        outputString += "\n</div>\n"
     }
 }
