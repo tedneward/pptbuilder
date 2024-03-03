@@ -2,6 +2,7 @@ package com.newardassociates.pptbuilder
 
 import java.io.File
 import java.net.URI
+import java.net.URLConnection
 import java.nio.file.Paths
 import kotlin.io.*
 import kotlin.test.*
@@ -51,5 +52,14 @@ class FileTests {
 
 //        assertTrue(srcfile.isFile) // currently returns false and I don't want to diagnose this anymore
         // But I also don't want to lose track of this
+    }
+    @Test fun macOSHTTPURITest() {
+        System.setProperty("https.protocols", "TLSv1.3")
+        val uri = URI.create("https://raw.githubusercontent.com/tedneward/Demo-Android-CreatingUIs/main/UIFromResources/app/src/main/java/edu/uw/ischool/newart/uisfromresources/MainActivity.kt")
+        if (uri.scheme == "http" || uri.scheme == "https") {
+            val text = uri.toURL().openConnection().getInputStream().reader().readText()
+            print("text = $text")
+            assertTrue(text.length != 0)
+        }
     }
 }

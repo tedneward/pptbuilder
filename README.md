@@ -52,6 +52,8 @@ Something JVM-based seemed to be the best solution; it has an XIncluding XML par
 
 * Footnotes (`[^1]` or `[^devguide]`) should be collected into a slide section at the end of the deck; references should be normalized by footnote tag; any footnoted text *not* met by a footnote definition should yield a warning? error?
 
+    * Only generate footnotes if the pptbuilder is invoked with a `-r` option to reference a bibliography; if it is, any unrecongized footnotes should generate a warning
+
 * Title slide contact info should have icons/emojis/whatever for email/Twitter/LinkedIn/etc
 
 * Allow <slide>/<notes> nodes to use Markdown styling
@@ -71,6 +73,11 @@ Something JVM-based seemed to be the best solution; it has an XIncluding XML par
 ### Slidy improvements/fixes
 * Allow -t flag to specify stylesheet to use for customization
 
+### DXSlides
+
+### Pandoc-PPTX
+* As a potential workaround for the code-block incorrect bounding box size calculations
+
 ## Sample "~/.pptbuilder.properties" file
 
 ```
@@ -86,6 +93,7 @@ contact.email=ted@tedneward.com
 contact.github=tedneward
 contact.linkedin=tedneward
 contact.twitter=@tedneward
+contact.mastodon=@tedneward@hachyderm.io
 
 #template.pptx=/Users/tedneward/Projects/Presentations/Templates/__Template.pptx
 ```

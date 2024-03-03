@@ -16,8 +16,18 @@ data class Presentation(
     val affiliation : String,
     val contactInfo : Map<String, String>,
     val keywords : List<String>,
-    val slides : List<Node>
+    val slides : List<Node>,
+    val footnotes : List<Footnote> = listOf()
 )
+
+data class Section(
+    val title: String,
+    val subtitle: String?,
+    val quote: String?,
+    val attribution: String?,
+    val notes : List<String>,
+    val defaultSlideTitle: String = title
+) : Node()
 
 data class Slide(
     val title : String,
@@ -27,14 +37,37 @@ data class Slide(
     val notes : List<String>
 ) : Node()
 
-data class Section(
-        val title: String,
-        val subtitle: String?,
-        val quote: String?,
-        val attribution: String?,
-        val defaultSlideTitle: String = title
+data class Footnote(
+    val ref : String,
+    val bibliography : String
+)
+
+// Different kinds of slides?
+/*
+data class Slide(
+    val node : XMLNode,
+    val notes : List<String>
 ) : Node()
 
-data class Import(
-        val importingPPT : String
-) : Node()
+data class SectionSlide(
+    val title: String,
+    val subtitle: String?,
+    val quote: String?,
+    val attribution: String?,
+    val defaultSlideTitle: String = title
+) : Slide()
+
+// A slide that is a single image, full-screen, no title
+data class ZenSlide(
+    val image : URI,
+    val caption : String
+)
+
+// A slide that is two-columns, both markdown text
+data class TwoColSlide(
+    val title : String,
+    val leftMarkdown : MDDocument,
+    val rightMarkdown : MDDocument    
+)
+ */
+

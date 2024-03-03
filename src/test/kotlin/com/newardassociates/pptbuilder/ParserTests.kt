@@ -223,4 +223,37 @@ This is a second.
             </presentation>
         """.trimIndent())
     }
+    @Test
+    fun codeblockTest() {
+        val preso = parser.parse(""" 
+            <presentation>
+                <head>
+                    <title>Title!</title>
+                    <abstract>Abstract!</abstract>
+                    <audience>Audience!</audience>
+                </head>
+                <slide title="Codeblock test">
+                # Header
+
+                ```
+                This is a code block. Line break here
+                And another linebreak here.
+                And one more for fun.
+                ```
+                </slide>
+            </presentation>
+        """.trimIndent())
+
+        val ast = ASTProcessor(Processor.Options(outputFilename = ""))
+        ast.process(preso)
+
+        assertTrue(preso.slides[0] is Slide)
+        val codeblockTestSlide = (preso.slides[0] as Slide)
+        val body = codeblockTestSlide.markdownBody
+        val paraCount = body.children.count()
+        assertEquals(2, paraCount)
+        // first node should be Header
+
+        // second node should be a CodeBlock
+    }
 }

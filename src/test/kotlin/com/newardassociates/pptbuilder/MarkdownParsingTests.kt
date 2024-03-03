@@ -201,12 +201,6 @@ Paragraph{}
                 println("  attributes: ${child.attributes.base}")
                 println("  info: ${child.info}")
             }
-            for (grandchild in child.children) {
-                println("\t\t" + grandchild)
-                for (ggchild in grandchild.children) {
-                    println("\t\t\t" + ggchild)
-                }
-            }
         }
         println("End of document")
     }

@@ -35,7 +35,6 @@ abstract class Processor(val options : Options) {
             when (slide) {
                 is Slide -> processSlide(slide)
                 is Section -> processSection(slide)
-                else -> logger.info("Unrecognized slide type: $slide")
             }
         }
 

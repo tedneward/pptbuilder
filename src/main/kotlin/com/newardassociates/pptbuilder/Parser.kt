@@ -150,24 +150,39 @@ class Parser(val properties : Properties) {
                     ast.add(Slide(title, node, mdParser.parse(node.textContent.trimIndent()), node.textContent, notesList))
                 }
                 "section" -> {
-                    // FUTURE: Can section slides have notes? Why not?
-
                     val attrsMap = node.attributes
                     sectionTitle = attrsMap.getNamedItem("title").nodeValue
                     logger.info("Parsing section title=${sectionTitle}")
                     val sectionSubtitle = attrsMap.getNamedItem("subtitle")?.nodeValue
                     val sectionQuote = attrsMap.getNamedItem("quote")?.nodeValue
                     val sectionAttribution = attrsMap.getNamedItem("attribution")?.nodeValue
-                    ast.add(Section(sectionTitle, sectionSubtitle, sectionQuote, sectionAttribution))
+
+                    val notesNode = slideNotesXPath.evaluate(node, XPathConstants.NODESET) as XMLNodeList?
+                    val notesList = mutableListOf<String>()
+                    if (notesNode != null && notesNode.length > 0) {
+                        for (n in 0..notesNode.length-1) {
+                            val notesNodeChild = notesNode.item(n)
+                            notesList.add(notesNodeChild.textContent)
+                            node.removeChild(notesNodeChild)
+                        }
+                    }
+
+                    ast.add(Section(sectionTitle, sectionSubtitle, sectionQuote, sectionAttribution, notesList))
                 }
                 "slideset" -> {
                     logger.info("Parsing slideset")
+                    // Sanity-check to make sure XInclude is included correctly
+                    // In an earlier life, XInclude used a different namespace declaration
+                    // so this just verifies it's all correct
                     if (node.attributes.getNamedItem("xmlns:xi") != null) {
                         if (node.attributes.getNamedItem("xmlns:xi")?.nodeValue != "http://www.w3.org/2001/XInclude" )
                             logger.warning(">>> XInclude incorrect namespace reference!")
                     }
                     ast.addAll(parseNodes(node.childNodes))
                     logger.info("End slideset")
+                }
+                "footnote" -> {
+                    logger.info("Parsing footnote")
                 }
                 else -> logger.fine("Unrecognized node: ${node.nodeName}")
             }
