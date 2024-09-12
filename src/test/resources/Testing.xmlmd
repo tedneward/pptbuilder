@@ -99,6 +99,19 @@
     </slide>
 
     <slide>
+    # Code
+    
+    Let's show off some embedded code:
+
+    ```
+    console.log("This code is in the XMLMD file")
+    ```
+
+    Here is some imported code from `console.js`:
+    ```{language=javascript src=Content/code/markedconsole.js marker=console}
+    ```
+    </slide>
+    <slide>
     # Footnotes test
 
     * This is a bullet with a footnote[^alpha]
@@ -112,28 +125,16 @@
     # Image test
 
     ![][ic_launcher-web.png]
+
+    This text should appear below the image
     </slide>
-
-    <slide>
-    Let's show off some embedded code:
-
-    ```
-    console.log("This code is in the XMLMD file")
-    ```
-
-    Here is some imported code from `console.js`:
-    ```{language=javascript src=Content/code/markedconsole.js marker=console}
-    ```
+    <!-- 
+    <slide layout="2-column">
     </slide>
-
-    <slide>
-    # Let's play with images
-
-    ![](image.png)
-    </slide>
-
-    <!--
+      -->
+    <!-- This would be a full-page graphic slide
     <zenslide image="image.png" />
       -->
+
 </presentation>
 
