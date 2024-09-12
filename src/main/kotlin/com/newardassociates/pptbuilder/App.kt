@@ -41,12 +41,17 @@ fun main(args: Array<String>) {
     val input by cliParser.argument(ArgType.String, description = "Input file")
     val output by cliParser.argument(ArgType.String, description = "Output file name").optional()
 
-    val outputDirectory by cliParser.option(ArgType.String, fullName = "outputDir", shortName = "d",
+    val outputDirectory by cliParser.option(ArgType.String, 
+            fullName = "outputDir", shortName = "d",
             description = "Output directory into which to place the generated file").default("")
 
     val verbosity by cliParser.option(ArgType.Choice(listOf("quiet", "warning", "info", "debug"), { it }),
             fullName = "verbosity", shortName = "v",
             description = "How much logging to display").default("warning")
+    val logfile by cliParser.option(ArgType.String,
+            fullName = "logfile", shortName = "l",
+            description = "The filename to capture logging to").default("")
+
     val format by cliParser.option(ArgType.Choice(listOf("pptx", "reveal", "slidy", "text", "nop"), { it }),
             fullName = "format", shortName = "f",
             description = "Output format to use").default("pptx")
@@ -56,25 +61,31 @@ fun main(args: Array<String>) {
 
     cliParser.parse(args)
 
+    // Turn off default ConsoleHandler
+    LogManager.getLogManager().reset()
+    Logger.getLogger(java.util.logging.Logger.GLOBAL_LOGGER_NAME).level = java.util.logging.Level.OFF    
     // Configure LogManager according to verbosity flag
-    val logger = Logger.getGlobal() //Logger.getLogger(::main.javaClass.packageName)
+    val logger = Logger.getLogger(::main.javaClass.packageName)
     logger.level = when (verbosity) {
         "quiet" -> Level.SEVERE
         "info" -> Level.INFO
-        "debug" -> Level.FINE
+        "debug" -> Level.ALL
         else -> Level.WARNING
     }
-    val handler = ConsoleHandler()
-    logger.addHandler(handler)
+    val handler = when (logfile) {
+        "" -> ConsoleHandler()
+        else -> FileHandler(logfile)
+    }
     handler.formatter = TerseFormatter()
-    println("Configuring logging at ${logger.level} levels...")
+    logger.addHandler(handler)
+    println("Configuring ${logger.name} logging at ${logger.level} levels...")
 
     // Grab default properties from .pptbuilder.properties
     val properties = Properties()
     val propertiesFile = "${System.getProperty("user.home")}/.pptbuilder.properties"
     if (File(propertiesFile).exists())
         properties.load(FileInputStream(propertiesFile))
-    println("... using properties from ${propertiesFile}: $properties")
+    //println("... using properties from ${propertiesFile}: $properties")
 
     // Design thought:
     // Does it make more sense to import the CLI args into the properties, and then
@@ -88,7 +99,7 @@ fun main(args: Array<String>) {
 
     val templateFile = (if (template != "") template else (properties["template"] ?: "")).toString()
 
-    println("... parsing ${inputPath}/${inputFile} to ${outputPath}${outputFile}${if (templateFile != "") " using ${templateFile}..." else ""}...")
+    //println("... parsing ${inputPath}/${inputFile} to ${outputPath}${outputFile}${if (templateFile != "") " using ${templateFile}..." else ""}...")
 
     /*
         val outputFilename : String = "",

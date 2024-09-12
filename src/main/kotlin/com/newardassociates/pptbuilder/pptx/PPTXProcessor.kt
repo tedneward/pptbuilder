@@ -50,7 +50,7 @@ typealias Stack<T> = MutableList<T>
 // Things to do:
 // -- start from or associate to PPTX template
 class PPTXProcessor(options : Options) : Processor(options) {
-    private val logger = Logger.getLogger(PPTXProcessor::class.java.canonicalName)
+    private val logger = Logger.getLogger(PPTXProcessor::class.java.packageName)
     private val deck = Deck(if (options.templateFile != "") XMLSlideShow(FileInputStream(options.templateFile)) else XMLSlideShow())
 
     override val processorExtension : String = "pptx"
@@ -60,7 +60,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
     }
 
     override fun processPresentationNode(presentation: Presentation) {
-        logger.info("Processing presentation node...")
+        logger.fine("Processing presentation node...")
         val titleSlide = TitleSlide(deck, presentation.title.replace("|", "\n"), "")
 
         // Subtitle text -- author, affiliation, and contact information
@@ -117,7 +117,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
     }
 
     override fun processSection(section: Section) {
-        logger.info("Creating section ${section.title} slide...")
+        logger.fine("Creating section ${section.title} slide...")
         if (section.subtitle != null && section.subtitle.isNotBlank())
             SectionHeaderSlide(deck, section.title, section.subtitle)
         else
@@ -125,10 +125,10 @@ class PPTXProcessor(options : Options) : Processor(options) {
     }
 
     override fun processLegacyCodeSlide(slide : Slide) {
-        logger.info("Creating legacy code slide for $slide")
+        logger.fine("Creating legacy code slide for $slide")
         val currentSlide = CodeSlide(deck, slide.title)
 
-        logger.info("Title anchor: ${currentSlide.title.anchor}")
+        logger.fine("Title anchor: ${currentSlide.title.anchor}")
         //val titleAnchor = currentSlide.title.anchor
 
         val childNodes = slide.node.childNodes
@@ -136,11 +136,11 @@ class PPTXProcessor(options : Options) : Processor(options) {
             val node = childNodes.item(nidx)
             when (node.nodeName) {
                 "text" -> {
-                    logger.info("Handling text section: " + node.textContent)
+                    logger.fine("Handling text section: " + node.textContent)
                     currentSlide.addTextBlock(node.textContent)
                 }
                 "code" -> {
-                    logger.info("Handling code section: " + node.textContent)
+                    logger.fine("Handling code section: " + node.textContent)
                     currentSlide.addCodeBlock(importCode(node))
                 }
             }
@@ -148,12 +148,12 @@ class PPTXProcessor(options : Options) : Processor(options) {
     }
 
     override fun processContentSlide(slide : Slide) {
-        logger.info("Creating content slide for $slide")
+        logger.fine("Creating content slide for $slide")
         val currentSlide = TitleAndContentSlide(deck, slide.title)
         val paragraphStack : Stack<XSLFTextParagraph> = mutableListOf()
         val paragraphGeneratorStack : Stack<() -> XSLFTextParagraph> = mutableListOf()
         paragraphGeneratorStack.push {
-            logger.info("New paragraph, no indent")
+            logger.fine("New paragraph, no indent")
             val para = currentSlide.content.addNewTextParagraph()
             para.isBullet = false
             para
@@ -173,7 +173,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
             val indentLevel = paragraphGeneratorStack.size - 1
             // -1 for the default paragraphGenerator
             paragraphGeneratorStack.push {
-                logger.info("Bulleted List! indent level $indentLevel")
+                logger.fine("Bulleted List! indent level $indentLevel")
                 val para = currentSlide.content.addNewTextParagraph()
                 para.indentLevel = indentLevel
 
@@ -197,7 +197,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
             val indentLevel = paragraphGeneratorStack.size - 1
             // -1 for the default paragraphGenerator
             paragraphGeneratorStack.push {
-                logger.info("Ordered List! indent level $indentLevel")
+                logger.fine("Ordered List! indent level $indentLevel")
                 val para = currentSlide.content.addNewTextParagraph()
                 para.indentLevel = indentLevel
                 para.setBulletAutoNumber(AutoNumberingScheme.arabicPeriod, 1)
@@ -213,12 +213,12 @@ class PPTXProcessor(options : Options) : Processor(options) {
 
         // There's always a paragraph wrapping whatever text we see
         visitor.addHandler(VisitHandler(Paragraph::class.java, fun(p : Paragraph) {
-            logger.info(">>> Paragraph")
+            logger.fine(">>> Paragraph")
             paragraphStack.push((paragraphGeneratorStack.peek()!!)())
 
             visitor.visitChildren(p)
 
-            logger.info("<<< Paragraph")
+            logger.fine("<<< Paragraph")
             paragraphStack.pop()
         }))
         visitor.addHandler(VisitHandler(FencedCodeBlock::class.java, fun (fcb : FencedCodeBlock) {
@@ -260,11 +260,11 @@ class PPTXProcessor(options : Options) : Processor(options) {
 
             if (currentSlide.content.textParagraphs.size > 0) {
                 // Now what?
-                logger.info("FencedCodeBlock textHeight: ${currentSlide.content.textHeight}")
+                logger.fine("FencedCodeBlock textHeight: ${currentSlide.content.textHeight}")
             }
 
             val para = currentSlide.content.addNewTextParagraph()
-            logger.info("para: ${para.parentShape.anchor}")
+            logger.fine("para: ${para.parentShape.anchor}")
             para.indentLevel = 0
             para.isBullet = false
 
@@ -276,7 +276,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
             }
         }))
         visitor.addHandler(VisitHandler(Text::class.java, fun (t : Text) {
-            logger.info("TextVisitor, ${paragraphStack}")
+            logger.fine("TextVisitor, ${paragraphStack}")
             val run = paragraphStack.peek()!!.addNewTextRun()
             run.setText(t.chars.unescape())
         }))
@@ -296,7 +296,7 @@ class PPTXProcessor(options : Options) : Processor(options) {
             run.setText(em.childChars.unescape())
         }))
         visitor.addHandler(VisitHandler(Footnote::class.java, fun (fn : Footnote) {
-            logger.info("FOOTNOTE: ${fn.referenceOrdinal}, ${fn.reference} ${fn.footnoteBlock} (${fn})")
+            logger.fine("FOOTNOTE: ${fn.referenceOrdinal}, ${fn.reference} ${fn.footnoteBlock} (${fn})")
             val run = paragraphStack.peek()!!.addNewTextRun()
             run.isSuperscript = true
             run.setText("[${fn.reference.unescape()}]")

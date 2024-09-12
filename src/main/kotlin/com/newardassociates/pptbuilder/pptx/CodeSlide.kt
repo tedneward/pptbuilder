@@ -7,7 +7,7 @@ import java.awt.geom.Rectangle2D
 import java.util.logging.Logger
 
 class CodeSlide(deck: Deck, titleText: String) : TitleOnlySlide(deck, titleText) {
-    private val logger = Logger.getLogger(CodeSlide::class.java.canonicalName)
+    private val logger = Logger.getLogger(CodeSlide::class.java.packageName)
 
     val titleAnchor = title.anchor
     val currentAnchor = Rectangle2D.Double(titleAnchor.x, titleAnchor.y + titleAnchor.height + 15.0, titleAnchor.width, 0.0)

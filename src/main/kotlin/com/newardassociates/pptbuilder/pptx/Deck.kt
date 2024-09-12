@@ -7,7 +7,7 @@ import org.apache.poi.xslf.usermodel.XSLFSlideLayout
 import java.util.logging.Logger
 
 class Deck(val ppt: XMLSlideShow) {
-    private val logger = Logger.getLogger(Deck::class.java.canonicalName)
+    private val logger = Logger.getLogger(Deck::class.java.packageName)
 
     constructor() : this(XMLSlideShow()) {}
 
@@ -18,11 +18,11 @@ class Deck(val ppt: XMLSlideShow) {
     lateinit var blankLayout: XSLFSlideLayout
 
     init {
-        logger.info("Iterating through layouts in ${ppt}")
+        logger.config("Iterating through layouts in ${ppt}")
         for (master in ppt.slideMasters) {
-            logger.info("Iterating through layouts in ${master}")
+            logger.config("Iterating through layouts in ${master}")
             for (layout in master.slideLayouts) {
-                logger.info("Found '${layout.name}'/(${layout.type})")
+                logger.config("Found '${layout.name}'/(${layout.type})")
                 when (layout.type) {
                     SlideLayout.TITLE -> titleLayout = layout
                     SlideLayout.SECTION_HEADER -> sectionHeaderLayout = layout
@@ -33,7 +33,7 @@ class Deck(val ppt: XMLSlideShow) {
                         when (layout.name) {
                             "Title Only" -> titleOnlyLayout = layout
                             else -> {
-                                logger.info("... unrecognized layout: '${layout.name}'")
+                                logger.config("... unrecognized layout: '${layout.name}'")
                             }
                         }
                     }

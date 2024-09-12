@@ -21,6 +21,9 @@ import org.w3c.dom.NodeList as XMLNodeList
 
 class Parser(val properties : Properties) {
     private val logger = Logger.getLogger(Parser::class.java.canonicalName)
+    init {
+        logger.level = null // Inherit from parent
+    }
 
     fun parse(file : File) : Presentation {
         logger.info("Parsing ${file.absoluteFile}")
