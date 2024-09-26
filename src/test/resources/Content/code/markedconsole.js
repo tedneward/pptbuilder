@@ -3,4 +3,4 @@
 // This is the Javascript you should see
 console.out("Hello, pptbuilder!")
 // {{## END console ##}}
-// ... or this
+// You shouldn't see this either

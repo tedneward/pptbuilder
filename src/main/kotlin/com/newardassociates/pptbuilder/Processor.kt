@@ -46,6 +46,8 @@ abstract class Processor(val options : Options) {
     abstract fun processPresentationNode(presentation : Presentation)
     abstract fun processSection(section : Section)
     open fun processReferencesSection() { }
+    open fun unrecognizedTag(tagname : String, tagbody : String) { logger.info("Unrecongized tag: $tagname ($tagbody)") }
+
 
     private val xpath: XPath = XPathFactory.newInstance().newXPath()
     private val codeXPath = xpath.compile(".//code")
@@ -79,7 +81,7 @@ abstract class Processor(val options : Options) {
 
             if (src.startsWith("http://") || src.startsWith("https://")) {
                 // It's a URL, not a file path
-                val url = URL(src)
+                val url = URI(src).toURL()
                 try {
                     val reader = BufferedReader(InputStreamReader(url.openStream()))
                     reader.lines().forEach { filetext.add(it) }

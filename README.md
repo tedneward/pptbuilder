@@ -25,20 +25,26 @@ Something JVM-based seemed to be the best solution; it has an XIncluding XML par
 ## Feature backlog
 
 ### XMLMD syntax/semantics
-* Allow <code>/```-fenced blocks to use URLs (for reference to Demo GitHub projects, rather than embedding all the code in this repo)
-
 * Provide "property" support, to customize slide decks with values (mostly to choose whether to include certain slides or sections or not)?
+
+    <if propname="java">
+        <xi:include href="code/java/Hello.java" />
+    </if>
+    <if propname="C#">
+        <xi:include href="code/cs/Hello.cs" />
+    </if>
+
+    Along these lines, define certain proprties ahead of time (author values, format target, etc)
 
 * Image imports/references
     * As a tag? Or as Markdown?
     * Does <slide> want/need to incorporate images as part of its layout somehow? A la specific slide tags for each layout? ("pzenslide", "twocolslide", ...?)
 
 * Chart/graph imports/references
-    * Use MermaidJS to generate 
+    * Use MermaidJS to generate -- call Mermaid directly from fenced code blocks?
+    * Once generated, use the image imports/references to pull in the graphic
 
 ### Infrastructure
-* Create a diagnostic log of items happening (with verbosity levels)
-
 * Work off of template files as starting points for processed output; use Freemarker for slidy/reveal templates?
 
 * Use GraalVM to run? (Allows use of JavaScript, Python, ....)
@@ -54,16 +60,16 @@ Something JVM-based seemed to be the best solution; it has an XIncluding XML par
 
     * Only generate footnotes if the pptbuilder is invoked with a `-r` option to reference a bibliography; if it is, any unrecongized footnotes should generate a warning
 
-* Title slide contact info should have icons/emojis/whatever for email/Twitter/LinkedIn/etc
+* Recognize emoticode symbols (a la `:twitter:` or `:linkedin:`); this will allow for slide contact info to have the right emoji for each link
 
 * Allow <slide>/<notes> nodes to use Markdown styling
 
 * Create a <slide>/<prose> section for longer-form consumption? (Or are we getting too much into Terra territory here?)
 
-* URLs
-    * LinkedIn URLs look like: https://www.linkedin.com/in/tedneward/
-    * Twitter URLs look like: https://twitter.com/tedneward
-    * Github URLs look like: https://github.com/tedneward
+### Processor-specific tags
+* Should these combine with property-test tags, or not?
+    * Yes: simplifies certain kinds of processing? Also, helps protect against some errors?
+    * No: easy enough to ignore unrecognized tags
 
 ### PPTX improvements/fixes
 * Fix bug around code-block incorrect bounding box size calculations

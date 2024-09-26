@@ -111,6 +111,30 @@
     ```{language=javascript src=Content/code/markedconsole.js marker=console}
     ```
     </slide>
+    
+    <slide>
+    # Mermaid support
+
+    Let's use the fenced code block syntax to generate a Mermaid diagram:
+
+    ```mermaid
+    classDiagram
+    Class01 <|-- AveryLongClass : Cool
+    Class03 *-- Class04
+    Class05 o-- Class06
+    Class07 .. Class08
+    Class09 --> C2 : Where am i?
+    Class09 --* C3
+    Class09 --|> Class07
+    Class07 : equals()
+    Class07 : Object[] elementData
+    Class01 : size()
+    Class01 : int chimp
+    Class01 : int gorilla
+    Class08 <--> C2: Cool label
+    ```
+    </slide>
+
     <slide>
     # Footnotes test
 
@@ -119,21 +143,27 @@
     * This is a bullet with a previous note[^alpha]
     </slide>
     <footnote id="alpha">http://www.alpha.com</footnote>
-    <footnote id="beta">Beta Books, by John Q Beta,</footnote>
+    <footnote id="beta">Beta Books, by John Q Beta</footnote>
 
     <slide>
     # Image test
 
     ![][ic_launcher-web.png]
 
-    This text should appear below the image
+    This text should appear below the image, and the image should be its native size
     </slide>
     <!-- 
     <slide layout="2-column">
+        <col>
+        </col>
+        <col>
+        </col>
+    </slide>
+    <slide layout="captioned">
     </slide>
       -->
     <!-- This would be a full-page graphic slide
-    <zenslide image="image.png" />
+    <slide zen="image.png" />
       -->
 
 </presentation>
