@@ -11,9 +11,9 @@ Legacy examples/samples appear in `slidesamples/legacy`.
 ## New format: XML/MD
 The new format wants to be pure Markdown inside of XML. The XML is still useful because of XInclude, to modularize, and XML allows for in-place metadata on various slide elements. Markdown then describes each slide. I would like to support the full flavor of Markdown, so as to allow for maximum flexibility in slide content, though some features of Markdown will be tricky to translate.
 
-New format examples/samples appear in "src/tests/kotlin" and "src/tests/resources", with the "xmlmd" suffix. (I deliberately chose to use a different suffix than just "xml" because I want to differentiate these files against other XML files that might be used. It's easy enough to configure editors to recognize "xmlmd" as an "xml" file type, after all.)
+New format examples/samples appear in "src/tests/kotlin" and "src/tests/resources", with the "xmlmd" suffix. (I deliberately chose to use a different suffix than just "xml" because I want to differentiate these files against other XML files that might be used. It's easy enough to configure editors to recognize "xmlmd" as an "xml" file type, after all.) -- As it turned out, I actually prefer editors recognizing "xmlmd" as Markdown types, since XML tags are understood in Markdown, and most of what appears in the file is Markdown syntax, not XML, so....
 
-I would like the tool to parse XMLMD into an AST, then transform that AST into a variety of different output formats: PPTX (it's been long enough, let's just move away from PPT at this point), PDF, and HTML ([Slidy?](https://www.w3.org/2005/03/slideshow.html#(1)) [RevealJS?](https://revealjs.com/)). DocBook Slides, just for fun?
+I would like the tool to parse XMLMD into an AST, then transform that AST into a variety of different output formats: PPTX (it's been long enough, let's just move away from PPT at this point), PDF, and HTML ([Slidy?](https://www.w3.org/2005/03/slideshow.html#(1)) [RevealJS?](https://revealjs.com/)). DocBook Slides, just for fun? -- Never got to PDF, still hold that as a long-term target. Slidy works well, though I really should look at new CSS templates for it. Haven't put any time into RevealJS yet.
 
 I also want a tool (not necessarily the same one) that knows how to parse the legacy format and spit out XMLMD equivalents, for easy porting.
 
@@ -21,6 +21,8 @@ I also want a tool (not necessarily the same one) that knows how to parse the le
 I needed a Markdown library that doesn't go from Markdown straight to HTML; I needed it to parse into an intermediate format that allows me to do the actual output. Beyond that, this could be done in just about any language/platform stack that allows me to do this headless (for CI/CD purposes).
 
 Something JVM-based seemed to be the best solution; it has an XIncluding XML parser, PPTX support (in the Apache POI libraries) and Markdown libraries (Flexmark-Java) that I need. I could write it one of many different languages, a la Java, Groovy, Kotlin, Scala, even Clojure if I really feel like punishing myself. ;-) Chose Kotlin--seems to be the best "Java++" I can work with.
+
+The current version of Gradle used (in the gradle wrapper) is good with nothing later than Java 17. TODO: Upgrade the Gradle wrapper to use a later version of Gradle to pace with Java releases.
 
 ## Feature backlog
 
